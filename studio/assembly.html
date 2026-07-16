@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contract assembly — TSI Contract Studio</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2319446C'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='%2300929F' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="studio.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header-left">
+      <img src="../assets/logo-white.svg" alt="TSI">
+      <span class="app-header-title">Contract Studio</span>
+      <span class="app-header-sub">Contract assembly</span>
+    </div>
+    <nav class="app-nav">
+      <a href="index.html">Dashboard</a>
+      <a href="assembly.html">Assembly</a>
+      <a href="stubs.html">Stubs</a>
+      <a href="tracker.html">Tracker</a>
+    </nav>
+    <div class="app-header-actions">
+      <button class="btn-hdr" id="themeBtn">Theme</button>
+    </div>
+  </header>
+
+  <!-- Assembly toolbar -->
+  <div class="row row-wrap no-print" style="padding:12px var(--sp-4);gap:var(--sp-3);border-bottom:var(--border-hairline) solid var(--color-border);background:var(--color-surface);position:sticky;top:var(--header-h);z-index:90;align-items:center;">
+    <div class="field" style="min-width:240px;">
+      <label class="field-label" for="projectSelect">Project</label>
+      <select class="select" id="projectSelect" style="height:30px;"></select>
+    </div>
+    <button class="btn btn-secondary btn-sm" id="newBtn">New project</button>
+    <div class="spacer"></div>
+    <div class="field" style="align-items:flex-start;">
+      <span class="field-label">View</span>
+      <div class="toggle-group" id="viewToggle">
+        <button class="toggle-opt active" data-v="working">Working</button>
+        <button class="toggle-opt" data-v="clean">Clean</button>
+        <button class="toggle-opt" data-v="print" title="Opens the browser print dialog">Print</button>
+      </div>
+    </div>
+    <button class="btn btn-sm" id="saveBtn">Save working file</button>
+    <button class="btn btn-teal btn-sm" id="exportBtn">Export clean</button>
+  </div>
+
+  <div id="assemblyBanner"></div>
+
+  <main class="doc-canvas">
+    <div class="doc-paper" id="docPaper" data-view="working">
+      <div class="empty-state">Loading contract…</div>
+    </div>
+    <p class="no-print text-center page-sub" style="margin-top:var(--sp-3);">
+      Hover a <span class="term">defined term</span> for its definition (click to jump to Article 1) ·
+      hover a <span class="calc">% cap</span> for the dollar value at the current contract price.
+    </p>
+  </main>
+
+  <!-- New-project modal -->
+  <div class="modal-overlay" id="newModal">
+    <div class="modal">
+      <div class="modal-header"><div class="modal-title">New project</div><button class="modal-close" data-close>×</button></div>
+      <div class="modal-body">
+        <div class="form-grid-2">
+          <div class="field"><label class="field-label">Project name</label><input class="input" id="f-name" placeholder="Berneck Dryer Island Rebuild"></div>
+          <div class="field"><label class="field-label">Buyer</label><input class="input" id="f-buyer" placeholder="Berneck S.A."></div>
+          <div class="field"><label class="field-label">Buyer address</label><input class="input" id="f-buyerAddress" placeholder="Araucária, Paraná, Brazil"></div>
+          <div class="field"><label class="field-label">Buyer notice address</label><input class="input" id="f-buyerNotices" placeholder="Legal Department, …"></div>
+          <div class="field"><label class="field-label">Site</label><input class="input" id="f-site" placeholder="Araucária, Brazil"></div>
+          <div class="field"><label class="field-label">Contract price (USD)</label><input class="input" type="number" id="f-contractPrice" placeholder="1815850"></div>
+          <div class="field"><label class="field-label">Effective date</label><input class="input" type="date" id="f-effectiveDate"></div>
+          <div class="field"><label class="field-label">Governing law</label><input class="input" id="f-governingLaw" value="Washington"></div>
+        </div>
+        <p class="field-hint" style="margin-top:var(--sp-2);">Commercial terms (LD caps, thresholds) seed from TSI standard defaults and can be tuned per project after creation.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-close>Cancel</button>
+        <button class="btn btn-primary" id="createBtn">Create project</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="studio.js"></script>
+  <script>
+    document.getElementById('themeBtn').addEventListener('click', TSI.toggleTheme);
+
+    // Definitions surfaced by the defined-terms engine (from Article 1).
+    const DEFINITIONS = {
+      'Agreement': 'This equipment supply agreement — cover sheet, Articles 1–22, and Annexes A–R, as amended by executed Change Orders.',
+      'Seller': 'Teal Sales Incorporated (TSI).',
+      'Buyer': 'The purchasing party named on the cover sheet.',
+      'Equipment': 'The machinery, components, software, and documentation supplied under Annex A.',
+      'Site': 'The delivery / installation location named on the cover sheet.',
+      'Contract Price': 'The total price payable to Seller, as adjusted by Change Orders.',
+      'Commissioning': 'The Article 5 activities to place the Equipment into operating condition.',
+      'Substantial Completion': 'The point, certified under Annex K, at which the Equipment can operate for its intended purpose, subject to punch-list items.',
+      'Confidential Information': 'Non-public information disclosed under this Agreement — see Article 18.',
+      'Intellectual Property': 'Patents, copyrights, trade secrets, know-how, and other proprietary rights.',
+      'Force Majeure': 'An event beyond a party’s reasonable control — see Article 16.'
+    };
+
+    const STD_DEFAULTS = {
+      warrantyPeriod: '12 months from Commissioning completion', governingLaw: 'Washington',
+      delayLDGracePeriod: 2, delayLDRate: 1, delayLDCap: 10, performanceLDCap: 10,
+      aggregateLDCap: 15, minPerformanceThreshold: 80, changeOrderMarkup: 20, terminationFeePercent: 20,
+      sellerNotice: 'Vancouver, Washington, USA'
+    };
+
+    let state = { index: null, project: null, template: null, stubReg: null, docReg: null };
+
+    function fillTemplate(tpl, p) {
+      const map = {
+        projectName: p.name || '—', buyer: p.buyer || '—', buyerAddress: p.buyerAddress || '—',
+        buyerNotices: p.buyerNotices || '—', site: p.site || '—', sellerNotice: p.sellerNotice || STD_DEFAULTS.sellerNotice,
+        contractPriceFmt: TSI.fmtMoney(p.contractPrice), effectiveDate: TSI.fmtDate(p.effectiveDate),
+        governingLaw: p.governingLaw || 'Washington', warrantyPeriod: p.warrantyPeriod || STD_DEFAULTS.warrantyPeriod,
+        delayLDGracePeriod: p.delayLDGracePeriod, delayLDRate: p.delayLDRate, delayLDCap: p.delayLDCap,
+        performanceLDCap: p.performanceLDCap, aggregateLDCap: p.aggregateLDCap,
+        minPerformanceThreshold: p.minPerformanceThreshold, changeOrderMarkup: p.changeOrderMarkup,
+        terminationFeePercent: p.terminationFeePercent
+      };
+      return tpl.replace(/\{\{(\w+)\}\}/g, function (_, k) { return (map[k] != null ? map[k] : ''); });
+    }
+
+    async function injectStubs(root, p) {
+      const slots = root.querySelectorAll('.stub-slot');
+      await Promise.all(Array.prototype.map.call(slots, async function (slot) {
+        const id = slot.getAttribute('data-stub');
+        const meta = state.stubReg.stubs.find(function (s) { return s.id === id; });
+        if (!meta) { slot.innerHTML = '<span class="open-issue note-block">[OPEN: stub “' + id + '” not found in registry.]</span>'; return; }
+        let html;
+        try { html = await TSI.readText(meta.file); }
+        catch (e) { slot.innerHTML = '<span class="open-issue note-block">[OPEN: could not load stub ' + id + '.]</span>'; return; }
+        // Is this stub modified in the project? (flag + note that reviewer checks reset)
+        const sec = (p.sections || []).find(function (s) { return s.stubId === id; });
+        let flag = '';
+        if (sec && sec.modified) {
+          flag = '<span class="stub-flag working-only">Modified from standard v' + TSI.escapeHTML(sec.stubVersion || meta.version) +
+                 ' — reviewer checks reset; diff shown in Stub manager.</span>';
+        } else {
+          flag = '<span class="working-only cell-muted" style="display:block;font-size:0.8em;margin-bottom:4px;">Standard stub v' +
+                 TSI.escapeHTML(meta.version) + '</span>';
+        }
+        slot.innerHTML = flag + html;
+      }));
+    }
+
+    async function injectAnnexes(root, p) {
+      const annexes = p.annexes || [];
+      // Cover-sheet annex list (working view only)
+      const listSlot = root.querySelector('.annex-list-slot');
+      if (listSlot) {
+        listSlot.innerHTML = '<table class="particulars"><tr><th style="width:12%;">Annex</th><th style="width:58%;">Title</th><th>Reviewer</th></tr>' +
+          annexes.map(function (a) {
+            return '<tr><td>' + TSI.escapeHTML(a.letter) + '</td><td class="text">' + TSI.escapeHTML(a.name) +
+              '</td><td class="text">' + TSI.escapeHTML(a.reviewer || '—') + '</td></tr>';
+          }).join('') + '</table>';
+      }
+      // Annex bodies
+      const bodySlot = root.querySelector('.annex-body-slot');
+      if (!bodySlot) return;
+      const parts = await Promise.all(annexes.map(async function (a) {
+        let body;
+        if (a.sourceDoc) {
+          const doc = state.docReg.documents.find(function (d) { return d.id === a.sourceDoc; });
+          if (doc) {
+            try { body = await TSI.readText(doc.file); }
+            catch (e) { body = '<span class="open-issue note-block">[OPEN: could not load ' + TSI.escapeHTML(a.sourceDoc) + '.]</span>'; }
+          } else {
+            body = '<span class="open-issue note-block">[OPEN: source document “' + TSI.escapeHTML(a.sourceDoc) + '” not in library.]</span>';
+          }
+        } else {
+          body = '<p class="draft-note note-block">[DRAFT NOTE: ' + TSI.escapeHTML(a.name) +
+                 ' is project-specific — draft or attach the content for this project.]</p>';
+        }
+        return '<div class="article" id="annex-' + TSI.escapeHTML(a.letter.toLowerCase()) + '">' +
+          '<h2>Annex ' + TSI.escapeHTML(a.letter) + ' — ' + TSI.escapeHTML(a.name) + '</h2>' +
+          '<span class="working-only cell-muted" style="display:block;font-size:0.8em;margin-bottom:6px;">Reviewer: ' +
+          TSI.escapeHTML(a.reviewer || '—') + '</span>' + body + '</div>';
+      }));
+      bodySlot.innerHTML = parts.join('');
+    }
+
+    async function renderContract() {
+      const p = state.project, paper = document.getElementById('docPaper');
+      paper.innerHTML = fillTemplate(state.template, p);
+      await injectStubs(paper, p);
+      await injectAnnexes(paper, p);
+      TSI.initDefinedTerms(paper, DEFINITIONS);
+      TSI.initCalcFields(paper, p.contractPrice);
+    }
+
+    async function selectProject(id) {
+      const entry = state.index.projects.find(function (x) { return x.id === id; });
+      if (!entry) return;
+      state.project = await TSI.readJSON(entry.path);
+      const url = new URL(location.href); url.searchParams.set('project', id); history.replaceState(null, '', url);
+      await renderContract();
+    }
+
+    // ── Views ──
+    document.querySelectorAll('#viewToggle .toggle-opt').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const v = btn.dataset.v;
+        if (v === 'print') { TSI.setView('clean', document.getElementById('docPaper')); window.print(); return; }
+        document.querySelectorAll('#viewToggle .toggle-opt').forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        TSI.setView(v, document.getElementById('docPaper'));
+      });
+    });
+
+    // ── New project ──
+    const modal = document.getElementById('newModal');
+    function openModal() { modal.classList.add('open'); }
+    function closeModal() { modal.classList.remove('open'); }
+    document.getElementById('newBtn').addEventListener('click', openModal);
+    modal.querySelectorAll('[data-close]').forEach(function (b) { b.addEventListener('click', closeModal); });
+
+    document.getElementById('createBtn').addEventListener('click', function () {
+      const name = document.getElementById('f-name').value.trim();
+      if (!name) { TSI.toast('Project name is required', 'warn'); return; }
+      const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + new Date().getFullYear();
+      const annexTemplate = state.docReg.annexTemplate.map(function (a) {
+        return { id: 'annex-' + a.letter.toLowerCase(), letter: a.letter, name: a.name, sourceDoc: a.sourceDoc, reviewer: a.reviewer, status: 'pending', notes: '' };
+      });
+      const sections = [{ id: 'cover', name: 'Cover sheet', reviewer: 'JT', status: 'pending', notes: '' }]
+        .concat(buildArticleSections());
+      const proj = Object.assign({
+        id: id, name: name,
+        buyer: document.getElementById('f-buyer').value.trim(),
+        buyerAddress: document.getElementById('f-buyerAddress').value.trim(),
+        buyerNotices: document.getElementById('f-buyerNotices').value.trim(),
+        site: document.getElementById('f-site').value.trim(),
+        contractPrice: Number(document.getElementById('f-contractPrice').value) || 0,
+        effectiveDate: document.getElementById('f-effectiveDate').value || TSI.stamp(),
+        status: 'In Review', createdAt: new Date().toISOString(), lastModified: new Date().toISOString(),
+        sections: sections, annexes: annexTemplate, exportLog: []
+      }, {
+        warrantyPeriod: STD_DEFAULTS.warrantyPeriod, governingLaw: document.getElementById('f-governingLaw').value.trim() || 'Washington',
+        delayLDGracePeriod: STD_DEFAULTS.delayLDGracePeriod, delayLDRate: STD_DEFAULTS.delayLDRate,
+        delayLDCap: STD_DEFAULTS.delayLDCap, performanceLDCap: STD_DEFAULTS.performanceLDCap,
+        aggregateLDCap: STD_DEFAULTS.aggregateLDCap, minPerformanceThreshold: STD_DEFAULTS.minPerformanceThreshold,
+        changeOrderMarkup: STD_DEFAULTS.changeOrderMarkup, terminationFeePercent: STD_DEFAULTS.terminationFeePercent,
+        sellerNotice: STD_DEFAULTS.sellerNotice
+      });
+      state.project = proj;
+      closeModal();
+      renderContract();
+      TSI.toast('Project created in memory — Save working file, then add it to projects/index.json', 'ok', 4200);
+      // reflect in selector
+      const sel = document.getElementById('projectSelect');
+      if (![].some.call(sel.options, function (o) { return o.value === id; })) {
+        const opt = document.createElement('option'); opt.value = id; opt.textContent = id + ' (new)'; sel.appendChild(opt);
+      }
+      sel.value = id;
+    });
+
+    // Article section skeleton for a new project (stub articles carry stubId).
+    function buildArticleSections() {
+      const arts = [
+        [1,'Definitions','Attorney'],[2,'Scope of work & engineering','JT / PM'],[3,'Delivery, title & risk','PM'],
+        [4,'Liquidated damages','Commercial'],[5,'Commissioning','Engineering'],[6,'Performance testing','Engineering'],
+        [7,'Contract price & payment','Commercial'],[8,'Change orders','PM / Commercial'],
+        [9,'Intellectual property','Attorney','ip-license'],[10,'Warranty','Attorney / Engineering'],
+        [11,'Spare parts','Engineering'],[12,'Indemnification','Attorney','indemnification'],
+        [13,'Insurance','Attorney / CFO','insurance'],[14,'Limitation of liability','Attorney','limitation-of-liability'],
+        [15,'Events of default & remedies','Attorney'],[16,'Force majeure','Attorney','force-majeure'],
+        [17,'Representations & warranties','Attorney','representations-warranties'],
+        [18,'Confidentiality','Attorney','confidentiality'],[19,'Compliance with laws','Attorney','anti-corruption'],
+        [20,'Change in law','Attorney'],[21,'Dispute resolution','Attorney','dispute-resolution'],
+        [22,'Miscellaneous','Attorney']
+      ];
+      return arts.map(function (a) {
+        const s = { id: 'article-' + a[0], name: 'Art. ' + a[0] + ' — ' + a[1], reviewer: a[2], status: 'pending', notes: '' };
+        if (a[3]) { s.stubId = a[3]; const m = state.stubReg.stubs.find(function (x) { return x.id === a[3]; }); s.stubVersion = m ? m.version : ''; s.modified = false; }
+        return s;
+      });
+    }
+
+    // ── Save working file ──
+    document.getElementById('saveBtn').addEventListener('click', async function () {
+      if (!state.project) return;
+      const paper = document.getElementById('docPaper');
+      const working = wrapStandalone(state.project.name + ' — working', paper.innerHTML, true);
+      const res = await TSI.saveFile('working-' + state.project.id, 'contract-working.html', working);
+      if (res.method === 'cancelled') return;
+      TSI.toast(res.method === 'download' ? 'Downloaded contract-working.html' : 'Saved working file', 'ok');
+    });
+
+    // ── Export clean (Module 4) ──
+    document.getElementById('exportBtn').addEventListener('click', async function () {
+      if (!state.project) return;
+      const p = state.project;
+      const paper = document.getElementById('docPaper');
+      const clean = TSI.stripInternal(paper);   // strips .draft-note/.int-note/.atty-note/.open-issue/.working-only/.stub-flag
+      const nextVer = nextVersion(p.exportLog);
+      const nameSafe = (p.name || 'ESA').replace(/[^A-Za-z0-9]+/g, '');
+      const stamp = TSI.stamp();
+      const filename = 'TSI_ESA_' + nameSafe + '_v' + nextVer + '_' + stamp + '.html';
+      const guidance = '<p style="font-family:sans-serif;font-size:9pt;color:#888;border-top:1px solid #ccc;margin-top:24px;padding-top:8px;">' +
+        'Open this file in Microsoft Word and Save As .docx for attorney / counterparty exchange. ' +
+        'Generated by TSI Contract Studio — ' + TSI.escapeHTML(filename) + '</p>';
+      const out = wrapStandalone(p.name + ' — ' + TSI.escapeHTML(filename), clean + guidance, false);
+      const res = await TSI.saveFile('export-' + p.id, filename, out);
+      if (res.method === 'cancelled') return;
+      // Append to export log + persist project.json
+      p.exportLog = p.exportLog || [];
+      p.exportLog.push({ version: nextVer, date: new Date().toISOString(), filename: filename });
+      p.lastModified = new Date().toISOString();
+      await TSI.saveFile('project-' + p.id, 'project.json', JSON.stringify(p, null, 2), { repick: true });
+      TSI.toast('Exported ' + filename + ' (v' + nextVer + ') · log updated', 'ok', 4000);
+    });
+
+    function nextVersion(log) {
+      if (!log || !log.length) return '1.0';
+      const last = log[log.length - 1].version || '1.0';
+      const parts = last.split('.').map(Number);
+      parts[1] = (parts[1] || 0) + 1;
+      return parts[0] + '.' + parts[1];
+    }
+
+    // Standalone HTML wrapper carrying enough of the document CSS to open on its own.
+    function wrapStandalone(title, bodyHTML, working) {
+      const css = [
+        'body{font:12pt/1.6 "Inter",system-ui,sans-serif;color:#333;max-width:8.5in;margin:0 auto;padding:0.9in;background:#fff;}',
+        'h1,h2,h3{color:#19446C;font-weight:500;}',
+        '.doc-title{font:24pt/1.2 "DM Serif Display",Georgia,serif;text-align:center;color:#19446C;}',
+        '.doc-subtitle{text-align:center;color:#666;margin-bottom:24px;}',
+        '.article{margin-top:24px;}',
+        '.article>h2{font-size:14pt;text-transform:uppercase;border-bottom:1px solid #00929F;padding-bottom:4px;}',
+        'ol.legal{list-style:none;counter-reset:item;padding-left:0;}',
+        'ol.legal>li{counter-increment:item;margin:8px 0;padding-left:2.4em;position:relative;}',
+        'ol.legal>li::before{content:counters(item,".") " ";position:absolute;left:0;font-weight:500;color:#19446C;}',
+        '.clause-num{font-weight:500;color:#19446C;}',
+        'table.particulars{width:100%;border-collapse:collapse;margin:8px 0 16px;font-size:11pt;}',
+        'table.particulars th,table.particulars td{padding:6px 10px;border:0.5px solid #ccc;text-align:left;vertical-align:top;}',
+        'table.particulars th{width:34%;background:#eaf0f5;color:#19446C;font-weight:500;}',
+        'table.particulars td{font-family:"JetBrains Mono",monospace;}',
+        'table.particulars td.text{font-family:"Inter",sans-serif;}',
+        '.data-table{width:100%;border-collapse:collapse;font-size:10pt;}',
+        '.data-table th{background:#19446C;color:#fff;padding:6px 8px;text-align:left;font-weight:500;}',
+        '.data-table td{padding:5px 8px;border-bottom:0.5px solid #ddd;}',
+        '.term{color:#19446C;border-bottom:1px dotted #00929F;}.calc{color:#00929F;}',
+        '.sig-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px;}',
+        '.sig-line{border-top:1px solid #333;padding-top:4px;margin-top:40px;font-size:10pt;color:#666;}',
+        '.hr{border:none;border-top:0.5px solid #ccc;margin:16px 0;}',
+        '.fill{display:inline-block;min-width:120px;border-bottom:1px solid #999;font-family:"JetBrains Mono",monospace;color:#00929F;}',
+        '@page{size:letter;margin:0.9in;}'
+      ].join('');
+      return '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>' + TSI.escapeHTML(title) +
+        '</title><style>' + css + '</style></head><body>' +
+        (working ? '<!-- WORKING FILE — contains internal drafting notes. Not for counterparty. -->' :
+                   '<!-- CLEAN EXPORT — internal markup stripped. -->') +
+        bodyHTML + '</body></html>';
+    }
+
+    async function init() {
+      TSI.initChrome();
+      const [tpl, stubReg, docReg, index] = await Promise.all([
+        TSI.readText('templates/master-agreement.html'),
+        TSI.readJSON('config/stub-registry.json'),
+        TSI.readJSON('config/doc-library-registry.json'),
+        TSI.readJSON('projects/index.json')
+      ]);
+      state.template = tpl; state.stubReg = stubReg; state.docReg = docReg; state.index = index;
+
+      const sel = document.getElementById('projectSelect');
+      sel.innerHTML = index.projects.map(function (p) { return '<option value="' + p.id + '">' + TSI.escapeHTML(p.id) + '</option>'; }).join('');
+      sel.addEventListener('change', function () { selectProject(sel.value); });
+
+      const params = TSI.params();
+      if (params.project === 'new') {
+        // Prefill modal from Intel handoff URL params, then open it.
+        if (params.buyer) document.getElementById('f-buyer').value = params.buyer;
+        if (params.site) document.getElementById('f-site').value = params.site;
+        if (params.price) document.getElementById('f-contractPrice').value = params.price;
+        if (params.name) document.getElementById('f-name').value = params.name;
+        openModal();
+        if (index.projects.length) { sel.value = index.projects[0].id; await selectProject(index.projects[0].id); }
+      } else {
+        const start = (params.project && index.projects.some(function (p) { return p.id === params.project; })) ? params.project : index.projects[0].id;
+        sel.value = start;
+        await selectProject(start);
+      }
+    }
+    init().catch(function (e) {
+      document.getElementById('docPaper').innerHTML = '<div class="banner banner-error">Failed to load: ' + TSI.escapeHTML(e.message) +
+        '<br>Serve over localhost (python -m http.server 8080).</div>';
+    });
+  </script>
+</body>
+</html>

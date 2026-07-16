@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Review tracker — TSI Contract Studio</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2319446C'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='%2300929F' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="studio.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header-left">
+      <img src="../assets/logo-white.svg" alt="TSI">
+      <span class="app-header-title">Contract Studio</span>
+      <span class="app-header-sub">Review tracker</span>
+    </div>
+    <nav class="app-nav">
+      <a href="index.html">Dashboard</a>
+      <a href="assembly.html">Assembly</a>
+      <a href="stubs.html">Stubs</a>
+      <a href="tracker.html">Tracker</a>
+    </nav>
+    <div class="app-header-actions">
+      <button class="btn-hdr" id="themeBtn">Theme</button>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="page-head">
+      <div>
+        <div class="page-kicker">Module 3</div>
+        <h1 class="page-title">Review tracker</h1>
+        <div class="page-sub">John marks sections done. No notifications, no routing — this is the internal dashboard.</div>
+      </div>
+      <div class="row no-print">
+        <div class="toggle-group" id="scopeToggle">
+          <button class="toggle-opt active" data-scope="project">Per project</button>
+          <button class="toggle-opt" data-scope="all">All projects</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Per-project view -->
+    <section id="projectView">
+      <div class="row row-wrap no-print" style="margin-bottom:var(--sp-3);gap:var(--sp-3);align-items:flex-end;">
+        <div class="field" style="min-width:280px;">
+          <label class="field-label" for="projectSelect">Project</label>
+          <select class="select" id="projectSelect"></select>
+        </div>
+        <div class="spacer"></div>
+        <button class="btn btn-primary" id="saveBtn">Save review state</button>
+      </div>
+
+      <div id="projectSummary"></div>
+
+      <div class="tbl-wrap" style="margin-top:var(--sp-3);">
+        <table class="data-table">
+          <thead>
+            <tr><th style="min-width:260px;">Section</th><th>Reviewer</th><th style="width:150px;">Status</th><th style="min-width:220px;">Notes</th></tr>
+          </thead>
+          <tbody id="sectionsBody"></tbody>
+        </table>
+      </div>
+
+      <div id="summaryFooter" class="card" style="margin-top:var(--sp-3);"></div>
+    </section>
+
+    <!-- All-projects summary -->
+    <section id="allView" class="hidden">
+      <div class="tbl-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Project</th><th>Status</th><th class="num">Complete</th><th style="min-width:160px;">Progress</th><th>Ready to package</th><th>Last modified</th></tr>
+          </thead>
+          <tbody id="allBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="studio.js"></script>
+  <script>
+    document.getElementById('themeBtn').addEventListener('click', TSI.toggleTheme);
+
+    const STATUSES = [
+      { v: 'pending',     label: 'Pending' },
+      { v: 'in-progress', label: 'In progress' },
+      { v: 'done',        label: 'Done' },
+      { v: 'flagged',     label: 'Flagged' }
+    ];
+
+    let state = { index: null, project: null, projectId: null };
+
+    function statusPill(s) {
+      const map = { 'done': 'Done', 'in-progress': 'In progress', 'pending': 'Pending', 'flagged': 'Flagged' };
+      return '<span class="rstatus rstatus-' + s + '">' + (map[s] || s) + '</span>';
+    }
+
+    function rowsFor(items, kind) {
+      return items.map(function (it, i) {
+        const modified = it.modified ? ' <span class="badge badge-warning" title="Modified from standard stub">modified</span>' : '';
+        const stub = it.stubId ? ' <span class="cell-muted">· stub ' + TSI.escapeHTML(it.stubId) + ' v' + TSI.escapeHTML(it.stubVersion || '') + '</span>' : '';
+        const opts = STATUSES.map(function (st) {
+          return '<option value="' + st.v + '"' + (it.status === st.v ? ' selected' : '') + '>' + st.label + '</option>';
+        }).join('');
+        return '<tr>' +
+          '<td class="cell-primary">' + TSI.escapeHTML(it.name) + stub + modified + '</td>' +
+          '<td><span class="badge badge-sage">' + TSI.escapeHTML(it.reviewer || '—') + '</span></td>' +
+          '<td>' + statusPill(it.status) +
+            '<select class="select btn-sm no-print" data-kind="' + kind + '" data-i="' + i + '" style="height:28px;margin-top:4px;">' + opts + '</select></td>' +
+          '<td><input class="input no-print" data-notes-kind="' + kind + '" data-notes-i="' + i + '" value="' + TSI.escapeHTML(it.notes || '') + '" placeholder="—" style="height:28px;">' +
+            '<span class="working-only cell-muted print-notes">' + TSI.escapeHTML(it.notes || '') + '</span></td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    function renderProject() {
+      const p = state.project;
+      if (!p) return;
+      const sections = p.sections || [], annexes = p.annexes || [];
+      const all = sections.concat(annexes);
+      const done = all.filter(function (s) { return s.status === 'done'; }).length;
+      const pct = TSI.pct(done, all.length);
+      const ready = done === all.length && all.length > 0;
+
+      document.getElementById('projectSummary').innerHTML =
+        '<div class="card"><div class="card-header">' +
+          '<div class="card-title">' + TSI.escapeHTML(p.name) + '</div>' +
+          '<span class="badge badge-' + (p.status === 'In Review' ? 'warning' : 'info') + '">' + TSI.escapeHTML(p.status || '') + '</span>' +
+        '</div><div class="card-body">' +
+          '<div class="row" style="gap:var(--sp-4);flex-wrap:wrap;">' +
+            '<div><div class="kpi-label">Buyer</div><div>' + TSI.escapeHTML(p.buyer || '—') + '</div></div>' +
+            '<div><div class="kpi-label">Site</div><div>' + TSI.escapeHTML(p.site || '—') + '</div></div>' +
+            '<div><div class="kpi-label">Contract price</div><div class="mono">' + TSI.fmtMoney(p.contractPrice) + '</div></div>' +
+            '<div style="flex:1;min-width:200px;"><div class="kpi-label">Completion</div>' +
+              '<div class="row"><div class="progress" style="flex:1;"><div class="progress-fill' + (ready ? ' full' : '') + '" style="width:' + pct + '%"></div></div>' +
+              '<span class="mono">' + pct + '%</span></div></div>' +
+          '</div>' +
+        '</div></div>';
+
+      const body = document.getElementById('sectionsBody');
+      body.innerHTML =
+        '<tr><td colspan="4" style="background:var(--color-bg);"><strong class="cell-muted" style="text-transform:uppercase;letter-spacing:0.06em;font-size:11px;">Terms &amp; conditions</strong></td></tr>' +
+        rowsFor(sections, 'section') +
+        '<tr><td colspan="4" style="background:var(--color-bg);"><strong class="cell-muted" style="text-transform:uppercase;letter-spacing:0.06em;font-size:11px;">Annexes</strong></td></tr>' +
+        rowsFor(annexes, 'annex');
+
+      // wire status + notes editors
+      body.querySelectorAll('select[data-kind]').forEach(function (sel) {
+        sel.addEventListener('change', function () {
+          const arr = sel.dataset.kind === 'section' ? state.project.sections : state.project.annexes;
+          const it = arr[+sel.dataset.i];
+          it.status = sel.value;
+          if (sel.value === 'done') it.completedAt = new Date().toISOString();
+          renderProject();
+        });
+      });
+      body.querySelectorAll('input[data-notes-kind]').forEach(function (inp) {
+        inp.addEventListener('input', function () {
+          const arr = inp.dataset.notesKind === 'section' ? state.project.sections : state.project.annexes;
+          arr[+inp.dataset.notesI].notes = inp.value;
+        });
+      });
+
+      document.getElementById('summaryFooter').innerHTML =
+        '<div class="card-body row" style="justify-content:space-between;flex-wrap:wrap;gap:var(--sp-3);">' +
+          '<div><span class="kpi-label">Complete</span> <span class="mono" style="font-size:18px;color:var(--color-heading);">' + done + ' of ' + all.length + '</span> sections</div>' +
+          '<div><span class="kpi-label">Ready to package</span> ' +
+            (ready ? '<span class="rstatus rstatus-done">Yes</span>' : '<span class="rstatus rstatus-pending">No — ' + (all.length - done) + ' open</span>') + '</div>' +
+        '</div>';
+    }
+
+    async function selectProject(id) {
+      state.projectId = id;
+      const entry = state.index.projects.find(function (p) { return p.id === id; });
+      if (!entry) return;
+      state.project = await TSI.readJSON(entry.path);
+      const url = new URL(location.href); url.searchParams.set('project', id); history.replaceState(null, '', url);
+      renderProject();
+    }
+
+    async function renderAll() {
+      const projects = await Promise.all(state.index.projects.map(function (p) {
+        return TSI.readJSON(p.path).catch(function () { return null; });
+      }));
+      document.getElementById('allBody').innerHTML = projects.filter(Boolean).map(function (p) {
+        const all = (p.sections || []).concat(p.annexes || []);
+        const done = all.filter(function (s) { return s.status === 'done'; }).length;
+        const pct = TSI.pct(done, all.length);
+        const ready = done === all.length && all.length > 0;
+        return '<tr>' +
+          '<td class="cell-primary"><a href="?project=' + encodeURIComponent(p.id) + '">' + TSI.escapeHTML(p.name) + '</a></td>' +
+          '<td><span class="badge badge-' + (p.status === 'In Review' ? 'warning' : 'info') + '">' + TSI.escapeHTML(p.status || '') + '</span></td>' +
+          '<td class="num">' + done + ' / ' + all.length + '</td>' +
+          '<td><div class="progress"><div class="progress-fill' + (ready ? ' full' : '') + '" style="width:' + pct + '%"></div></div></td>' +
+          '<td>' + (ready ? '<span class="rstatus rstatus-done">Yes</span>' : '<span class="rstatus rstatus-pending">No</span>') + '</td>' +
+          '<td class="cell-muted">' + TSI.fmtDate(p.lastModified) + '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    document.getElementById('saveBtn').addEventListener('click', async function () {
+      if (!state.project) return;
+      state.project.lastModified = new Date().toISOString();
+      const res = await TSI.saveFile('project-' + state.project.id, 'project.json', JSON.stringify(state.project, null, 2));
+      if (res.method === 'cancelled') return;
+      TSI.toast(res.method === 'download' ? 'Downloaded project.json — drop it into the project folder' : 'Saved review state', 'ok');
+    });
+
+    document.querySelectorAll('#scopeToggle .toggle-opt').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('#scopeToggle .toggle-opt').forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        const all = btn.dataset.scope === 'all';
+        document.getElementById('allView').classList.toggle('hidden', !all);
+        document.getElementById('projectView').classList.toggle('hidden', all);
+        if (all) renderAll();
+      });
+    });
+
+    async function init() {
+      TSI.initChrome();
+      state.index = await TSI.readJSON('projects/index.json');
+      const sel = document.getElementById('projectSelect');
+      sel.innerHTML = state.index.projects.map(function (p) {
+        return '<option value="' + p.id + '">' + TSI.escapeHTML(p.id) + '</option>';
+      }).join('');
+      sel.addEventListener('change', function () { selectProject(sel.value); });
+      const want = TSI.params().project;
+      const start = (want && state.index.projects.some(function (p) { return p.id === want; })) ? want : state.index.projects[0].id;
+      sel.value = start;
+      await selectProject(start);
+    }
+    init().catch(function (e) {
+      document.getElementById('projectSummary').innerHTML = '<div class="banner banner-error">' + TSI.escapeHTML(e.message) + '</div>';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!-- TSI Contract Studio · technical annex · performance test protocol · fragment only -->
+<div class="doc-content" data-doc-id="performance-test-protocol">
+  <p>This annex defines the performance test by which the <span data-term="Equipment">Equipment</span> is demonstrated to meet
+    the guaranteed parameters. The test establishes whether <span data-term="Seller">Seller</span> has met its performance
+    obligations and is the basis for the performance element of <span data-term="Substantial Completion">Substantial Completion</span>.</p>
+
+  <h3>1. Purpose</h3>
+  <p>To verify, under representative and stable operating conditions, that the <span data-term="Equipment">Equipment</span>
+    achieves the guaranteed throughput, product moisture, and specific energy consumption set out below, measured by agreed
+    methods and instruments.</p>
+
+  <h3>2. Test conditions</h3>
+  <p>The test is run only after <span data-term="Commissioning">Commissioning</span> is complete, on the reference furnish and
+    grade, with feed within the design envelope and all utilities within their supply tolerances. Steady state is held for a
+    stabilization period before data collection.</p>
+  <table class="particulars">
+    <tr><th>Reference product</th><td><span class="fill fill-wide">&nbsp;</span> grade, <span class="fill">&nbsp;</span> g/m² basis weight</td></tr>
+    <tr><th>Stabilization period</th><td>≥ 2 h at steady state before the measured run</td></tr>
+    <tr><th>Measured run duration</th><td>≥ 4 h continuous</td></tr>
+    <tr><th>Feed / utility limits</th><td>within the design datasheet envelope throughout</td></tr>
+    <tr><th>Ambient</th><td>recorded; corrections applied per the correction curves in the datasheet</td></tr>
+  </table>
+  <p><span class="draft-note">[DRAFT NOTE: Confirm reference grade, basis weight, and run duration with process engineering before first send.]</span></p>
+
+  <h3>3. Guaranteed parameters</h3>
+  <div class="tbl-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th>Parameter</th><th class="num">Guaranteed value</th><th class="num">Unit</th><th class="num">Tolerance</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Throughput (bone-dry)</td><td class="num"><span class="fill">&nbsp;</span></td><td class="num">t/h</td><td class="num">−0% / +n.a.</td></tr>
+        <tr><td>Product moisture at reel</td><td class="num"><span class="fill">&nbsp;</span></td><td class="num">% wt</td><td class="num">± 0.5 % wt</td></tr>
+        <tr><td>Moisture profile (CD, 2σ)</td><td class="num">≤ 1.0</td><td class="num">% wt</td><td class="num">&mdash;</td></tr>
+        <tr><td>Specific thermal energy</td><td class="num"><span class="fill">&nbsp;</span></td><td class="num">MJ/kg H₂O</td><td class="num">+3%</td></tr>
+        <tr><td>Specific electrical energy</td><td class="num"><span class="fill">&nbsp;</span></td><td class="num">kWh/t</td><td class="num">+3%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><span class="int-note">[INT: Populate guaranteed values from the proposal datasheet; energy guarantees are conditional on utility supply temperatures/pressures being met.]</span></p>
+
+  <h3>4. Measurement method and instruments</h3>
+  <ul>
+    <li>Throughput from calibrated reel/winder counters cross-checked against the stock flow and consistency measurement.</li>
+    <li>Moisture from the on-machine scanner, verified against oven-dry laboratory samples (TAPPI T 412) taken during the run.</li>
+    <li>Thermal energy from calibrated steam flow, pressure, and condensate metering; electrical energy from calibrated power metering at the drive lineups.</li>
+    <li>All test instruments carry current calibration certificates traceable to a national standard; calibration records are appended to the report.</li>
+  </ul>
+
+  <h3>5. Acceptance criteria</h3>
+  <p>The <span data-term="Equipment">Equipment</span> passes when each guaranteed parameter is met within its stated tolerance
+    over the measured run, after agreed corrections for off-reference ambient and utility conditions. Where results are
+    expressed against a guarantee, performance is assessed as the corrected measured value relative to the guaranteed value.</p>
+  <table class="particulars">
+    <tr><th>Full acceptance</th><td>all guaranteed parameters met within tolerance</td></tr>
+    <tr><th>Minimum performance threshold</th><td>≥ 80% of guaranteed throughput with product within moisture tolerance</td></tr>
+    <tr><th>Below threshold</th><td>not accepted; Seller to remedy and re-test, subject to Article on liquidated damages / rejection</td></tr>
+  </table>
+  <p><span class="draft-note">[DRAFT NOTE: The 80% minimum-performance threshold is the floor below which the Equipment is not accepted; confirm alignment with the liquidated-damages and rejection provisions in the main agreement.]</span></p>
+
+  <h3>6. Repeat tests</h3>
+  <p>If a test does not achieve full acceptance, <span data-term="Seller">Seller</span> may make adjustments and repeat the test.
+    Up to two (2) repeat tests are permitted. A run is disregarded and does not count against this limit where it is invalidated
+    by a cause outside <span data-term="Seller">Seller</span>'s scope &mdash; including feed, furnish, or utility supply
+    provided by <span data-term="Buyer">Buyer</span> that falls outside the design envelope, or an upstream or downstream
+    process constraint that prevents the <span data-term="Equipment">Equipment</span> from running at its rated point (the
+    "upstream/downstream carve-out"). Buyer shall afford reasonable production time and the reference furnish for each repeat test.
+    <span class="atty-note note-block">[ATTY: The upstream/downstream carve-out shifts risk of Buyer-side process limits to Buyer; confirm the boundary of Seller's scope on the P&amp;ID so the carve-out is not open-ended.]</span></p>
+
+  <h3>7. Reporting</h3>
+  <p>A performance test report is issued within ten (10) business days of the run, stating the measured and corrected values
+    against each guarantee, the instruments and calibration used, the raw data, and the pass/fail determination. The report,
+    once accepted by both parties, is the record of performance for <span data-term="Substantial Completion">Substantial Completion</span>.</p>
+</div>

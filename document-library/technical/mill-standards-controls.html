@@ -1,0 +1,68 @@
+<!-- TSI Contract Studio · technical annex · mill controls & automation standards · fragment only -->
+<div class="doc-content" data-doc-id="mill-standards-controls">
+  <p>This annex sets the control-system, automation, and acceptance-test standards for the
+    <span data-term="Equipment">Equipment</span> supplied by <span data-term="Seller">Seller</span>. Platform selections
+    shown for confirmation shall match the <span data-term="Buyer">Buyer</span> mill automation standard before detailed design.
+    <span class="draft-note">[DRAFT NOTE: Confirm PLC/HMI platform and network standard against the mill's existing automation base before release.]</span></p>
+
+  <h3>1. Control platform</h3>
+  <table class="particulars">
+    <tr><th>PLC / controller</th><td><span class="fill fill-wide">&nbsp;</span> (Buyer standard to confirm)</td></tr>
+    <tr><th>Programming standard</th><td>IEC 61131-3, structured and reusable function blocks</td></tr>
+    <tr><th>HMI / SCADA</th><td><span class="fill fill-wide">&nbsp;</span>, high-performance graphics per ISA-101</td></tr>
+    <tr><th>Redundancy</th><td>controller and power supply redundancy on machine-critical loops</td></tr>
+    <tr><th>Time source</th><td>plant NTP; controllers synchronized to a single reference</td></tr>
+  </table>
+
+  <h3>2. I/O standards</h3>
+  <ul>
+    <li>Analog inputs: 4&ndash;20 mA, 2-wire where possible, individually fused, with signal conditioning and channel-level diagnostics.</li>
+    <li>RTD / thermocouple inputs to the sensor standard on the instrument datasheet; RTDs are 3-wire Pt100.</li>
+    <li>Discrete I/O: 24 V DC, isolated, LED-indicated, with 20% installed spare capacity per rack minimum.</li>
+    <li>Safety I/O routed through a separate safety controller rated to the required SIL; not commingled with the process controller.</li>
+  </ul>
+
+  <h3>3. Networks</h3>
+  <table class="particulars">
+    <tr><th>Plant / supervisory</th><td>Ethernet/IP on managed switches, ring or star with media redundancy</td></tr>
+    <tr><th>Device level</th><td>Ethernet/IP or Profibus DP to drives and remote I/O, per Buyer standard</td></tr>
+    <tr><th>Instrument bus</th><td>HART over 4&ndash;20 mA for smart transmitters; Profibus PA where specified</td></tr>
+    <tr><th>Segregation</th><td>control network physically and logically separated from the business network</td></tr>
+  </table>
+  <p><span class="int-note">[INT: Confirm whether existing mill backbone is Ethernet/IP or Profibus; mixed-protocol gateways add FAT scope.]</span></p>
+
+  <h3>4. Batch and information models</h3>
+  <p>Where the process is procedural, control is structured to ISA-88 (physical model, procedures, phases) for portability and
+    clear state handling. Data exchange with the <span data-term="Buyer">Buyer</span> manufacturing systems follows the ISA-95
+    equipment and information hierarchy so that production, quality, and downtime data map to the mill MES without bespoke
+    translation.</p>
+
+  <h3>5. Alarms</h3>
+  <p>Alarm design follows ISA-18.2: every alarm is rationalized, prioritized, and actionable, with defined setpoint, deadband,
+    and operator response. Nuisance and standing alarms are eliminated before SAT. Alarm rate targets and shelving rules are
+    agreed with the <span data-term="Buyer">Buyer</span> operations team.</p>
+
+  <h3>6. Tag naming</h3>
+  <p>Every instrument, loop, and I/O point carries a unique tag from the project tag register, consistent across the P&amp;IDs,
+    loop diagrams, PLC program, and HMI. Tag structure follows ISA-5.1 identification (measured variable + loop number +
+    suffix), extended by the mill area/unit convention.</p>
+  <table class="particulars">
+    <tr><th>Tag pattern</th><td>[area]-[unit]-[ISA function][loop no.] (e.g. DR1-TT-2104)</td></tr>
+    <tr><th>Register owner</th><td>Seller maintains during design; handed to Buyer at close-out</td></tr>
+  </table>
+
+  <h3>7. Cybersecurity baseline</h3>
+  <p>The control system is delivered hardened to a baseline aligned with IEC 62443: default credentials removed, unused ports
+    and services disabled, role-based access with named accounts, signed firmware where supported, and a documented backup of
+    controller, HMI, and drive configurations at handover. No remote access is enabled without the Buyer's written authorization
+    and an agreed secure method.
+    <span class="atty-note note-block">[ATTY: Remote-access provisions interact with the support/warranty terms and Buyer IT policy; confirm the authorized method and audit obligations.]</span></p>
+
+  <h3>8. Factory and site acceptance testing</h3>
+  <table class="particulars">
+    <tr><th>FAT</th><td>at Seller works, on simulated I/O, against the approved test plan; Buyer witness invited</td></tr>
+    <tr><th>SAT</th><td>at Site, on live I/O, loop-checked end to end before <span data-term="Commissioning">Commissioning</span></td></tr>
+    <tr><th>Punch list</th><td>open items logged and closed before <span data-term="Substantial Completion">Substantial Completion</span></td></tr>
+  </table>
+  <p><span class="draft-note">[DRAFT NOTE: Set FAT witness notice period and whether FAT sign-off is a payment milestone.]</span></p>
+</div>

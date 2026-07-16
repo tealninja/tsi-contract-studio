@@ -1,0 +1,45 @@
+{
+  "_comment": "Document-library index + default annex template. 'documents' lists every reusable annex source in the library; 'annexTemplate' is the default A–R annex set inserted when a project is created, each mapped to a source document and a functional reviewer.",
+  "updated": "2025-01-15",
+  "documents": [
+    { "id": "form-change-order",            "name": "Form of change order",                    "category": "forms",      "file": "document-library/forms/form-change-order.html",            "reviewer": "Attorney" },
+    { "id": "form-certificate-completion",  "name": "Form of certificate of completion",       "category": "forms",      "file": "document-library/forms/form-certificate-completion.html",  "reviewer": "Attorney" },
+    { "id": "form-lien-waiver-conditional", "name": "Form of lien waiver — conditional",        "category": "forms",      "file": "document-library/forms/form-lien-waiver-conditional.html", "reviewer": "Attorney" },
+    { "id": "form-lien-waiver-unconditional","name": "Form of lien waiver — unconditional",     "category": "forms",      "file": "document-library/forms/form-lien-waiver-unconditional.html","reviewer": "Attorney" },
+    { "id": "form-commissioning-notice",    "name": "Form of commissioning notice",            "category": "forms",      "file": "document-library/forms/form-commissioning-notice.html",    "reviewer": "Attorney" },
+    { "id": "form-milestone-certificate",   "name": "Form of milestone certificate",           "category": "forms",      "file": "document-library/forms/form-milestone-certificate.html",   "reviewer": "PM / Commercial" },
+    { "id": "form-notice-of-readiness",     "name": "Form of notice of commissioning readiness","category": "forms",      "file": "document-library/forms/form-notice-of-readiness.html",     "reviewer": "Attorney" },
+
+    { "id": "mill-standards-electrical",    "name": "Mill standards — electrical",             "category": "technical",  "file": "document-library/technical/mill-standards-electrical.html", "reviewer": "Electrical Engineering" },
+    { "id": "mill-standards-mechanical",    "name": "Mill standards — mechanical",             "category": "technical",  "file": "document-library/technical/mill-standards-mechanical.html", "reviewer": "Mechanical Engineering" },
+    { "id": "mill-standards-controls",      "name": "Mill standards — controls",               "category": "technical",  "file": "document-library/technical/mill-standards-controls.html",   "reviewer": "Controls Engineering" },
+    { "id": "mill-standards-coatings",      "name": "Mill standards — surface coatings",       "category": "technical",  "file": "document-library/technical/mill-standards-coatings.html",   "reviewer": "Engineering" },
+    { "id": "performance-test-protocol",    "name": "Performance test protocol",               "category": "technical",  "file": "document-library/technical/performance-test-protocol.html", "reviewer": "Engineering / PM" },
+    { "id": "installation-precommissioning-requirements", "name": "Installation & pre-commissioning requirements", "category": "technical", "file": "document-library/technical/installation-precommissioning-requirements.html", "reviewer": "Engineering" },
+    { "id": "responsibility-matrix-blank",  "name": "Responsibility matrix (blank)",           "category": "technical",  "file": "document-library/technical/responsibility-matrix-blank.html","reviewer": "PM / Engineering" },
+
+    { "id": "warranty-standard",            "name": "Seller's standard warranty",              "category": "commercial", "file": "document-library/commercial/warranty-standard.html",        "reviewer": "Attorney / Engineering" },
+    { "id": "insurance-schedule",           "name": "Insurance requirements & schedule",       "category": "commercial", "file": "document-library/commercial/insurance-schedule.html",       "reviewer": "CFO / Insurance Broker" },
+    { "id": "buyer-info-form-blank",        "name": "Buyer-provided information form (blank)",  "category": "commercial", "file": "document-library/commercial/buyer-info-form-blank.html",    "reviewer": "Engineering" }
+  ],
+  "annexTemplate": [
+    { "letter": "A", "name": "Scope of work summary",                                 "sourceDoc": null,                              "reviewer": "PM / Engineering" },
+    { "letter": "B", "name": "Responsibility matrix",                                 "sourceDoc": "responsibility-matrix-blank",     "reviewer": "PM / Engineering" },
+    { "letter": "C", "name": "Buyer-provided information",                            "sourceDoc": "buyer-info-form-blank",           "reviewer": "Engineering" },
+    { "letter": "D", "name": "Project schedule",                                      "sourceDoc": null,                              "reviewer": "PM" },
+    { "letter": "E", "name": "Milestone payment schedule & definitions of completion","sourceDoc": "form-milestone-certificate",     "reviewer": "PM / Commercial" },
+    { "letter": "F", "name": "Performance guarantee & performance test protocol",     "sourceDoc": "performance-test-protocol",       "reviewer": "Engineering / PM" },
+    { "letter": "G", "name": "Form of change order",                                  "sourceDoc": "form-change-order",               "reviewer": "Attorney" },
+    { "letter": "H", "name": "Seller's standard warranty",                            "sourceDoc": "warranty-standard",               "reviewer": "Attorney / Engineering" },
+    { "letter": "I", "name": "Installation & pre-commissioning requirements",         "sourceDoc": "installation-precommissioning-requirements", "reviewer": "Engineering" },
+    { "letter": "J", "name": "Form of notice of commissioning readiness",             "sourceDoc": "form-notice-of-readiness",        "reviewer": "Attorney" },
+    { "letter": "K", "name": "Form of certificate of completion",                     "sourceDoc": "form-certificate-completion",     "reviewer": "Attorney" },
+    { "letter": "L", "name": "Form of lien waiver — conditional",                     "sourceDoc": "form-lien-waiver-conditional",    "reviewer": "Attorney" },
+    { "letter": "M", "name": "Form of lien waiver — unconditional",                   "sourceDoc": "form-lien-waiver-unconditional",  "reviewer": "Attorney" },
+    { "letter": "N", "name": "Insurance requirements & schedule",                     "sourceDoc": "insurance-schedule",              "reviewer": "CFO / Insurance Broker" },
+    { "letter": "O", "name": "Mill standards — electrical",                           "sourceDoc": "mill-standards-electrical",       "reviewer": "Electrical Engineering" },
+    { "letter": "P", "name": "Mill standards — mechanical",                           "sourceDoc": "mill-standards-mechanical",       "reviewer": "Mechanical Engineering" },
+    { "letter": "Q", "name": "Mill standards — controls",                             "sourceDoc": "mill-standards-controls",         "reviewer": "Controls Engineering" },
+    { "letter": "R", "name": "Mill standards — surface coatings",                     "sourceDoc": "mill-standards-coatings",         "reviewer": "Engineering" }
+  ]
+}

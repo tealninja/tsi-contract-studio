@@ -1,0 +1,78 @@
+<!-- TSI Contract Studio · technical annex · mill electrical standards · fragment only -->
+<div class="doc-content" data-doc-id="mill-standards-electrical">
+  <p>This annex sets the electrical design, supply, and installation standards to which the
+    <span data-term="Equipment">Equipment</span> is engineered and delivered by <span data-term="Seller">Seller</span>.
+    Values marked for confirmation are project-specific and shall be verified against the <span data-term="Site">Site</span>
+    electrical single-line diagram before release for manufacture.
+    <span class="draft-note">[DRAFT NOTE: Confirm all supply values against the Site single-line and utility study before first send.]</span></p>
+
+  <h3>1. Supply and reference conditions</h3>
+  <table class="particulars">
+    <tr><th>Main power supply</th><td>480 V, 3-phase, 60 Hz, 3-wire plus ground</td></tr>
+    <tr><th>Control power</th><td>120 V, 1-phase, 60 Hz, derived from control transformers within each enclosure</td></tr>
+    <tr><th>DC control / instrument</th><td>24 V DC, regulated, from redundant supplies</td></tr>
+    <tr><th>Voltage tolerance</th><td>±10% steady state, ±15% transient</td></tr>
+    <tr><th>Frequency tolerance</th><td>±2%</td></tr>
+    <tr><th>Short-circuit withstand (SCCR)</th><td>65 kA at 480 V, minimum <span class="fill">&nbsp;</span></td></tr>
+    <tr><th>Design ambient</th><td>40 °C in-enclosure, ≤ 95% RH non-condensing</td></tr>
+  </table>
+  <p><span class="int-note">[INT: Utility fault current at the incomer governs SCCR; do not release panel ratings until the study is closed.]</span></p>
+
+  <h3>2. Area classification</h3>
+  <p>Electrical apparatus shall be selected for the area classification of its installed location. Unless stated otherwise on
+    the classification drawing, the wet-end, hydraulic room, and dryer hood plenum are treated as ordinary (unclassified)
+    industrial areas with high ambient moisture; enclosures in washdown zones are IP66 / NEMA 4X. Any location classified as
+    hazardous under NFPA 70 (NEC) Article 500 shall use apparatus rated for the applicable Class, Division, and Group.</p>
+  <table class="particulars">
+    <tr><th>Standard indoor, dry</th><td>IP54 / NEMA 12</td></tr>
+    <tr><th>Washdown and wet-end</th><td>IP66 / NEMA 4X, stainless enclosures</td></tr>
+    <tr><th>Outdoor</th><td>IP66 / NEMA 4X with condensation control</td></tr>
+    <tr><th>Classified areas (if any)</th><td>per NFPA 70 Article 500 &mdash; Class <span class="fill">&nbsp;</span>, Div <span class="fill">&nbsp;</span>, Group <span class="fill">&nbsp;</span></td></tr>
+  </table>
+
+  <h3>3. Cabling and conduit</h3>
+  <p>Power, control, and instrument cabling shall be segregated and routed in separate raceways or with the minimum
+    separation set by IEEE 518 to limit coupled noise. Cable sizing, derating, and overcurrent protection follow NFPA 70.</p>
+  <ul>
+    <li>Power conductors: XLPE or EPR insulated copper, 600 V rated, sized for continuous load with no derated conductor above 75% of ampacity.</li>
+    <li>Instrument signals: individually shielded twisted pair, drain grounded at one end only (control system side).</li>
+    <li>VFD motor leads: symmetrical shielded VFD cable, gland-terminated with 360° shield bond at both ends.</li>
+    <li>Conduit: rigid galvanized steel in process areas; liquidtight flexible for final motor and instrument connections; PVC-coated in washdown zones.</li>
+    <li>Fill and bend radius per NFPA 70; no raceway above 40% fill.</li>
+  </ul>
+
+  <h3>4. Motors and variable-frequency drives</h3>
+  <table class="particulars">
+    <tr><th>Motor standard</th><td>NEMA MG 1, Design B, inverter-duty per MG 1 Part 31 where fed from a VFD</td></tr>
+    <tr><th>Efficiency</th><td>NEMA Premium, minimum</td></tr>
+    <tr><th>Insulation / rise</th><td>Class F insulation, Class B temperature rise</td></tr>
+    <tr><th>Enclosure</th><td>TEFC standard; TENV or washdown-duty in wet-end</td></tr>
+    <tr><th>Bearings (VFD-fed ≥ 75 kW)</th><td>insulated non-drive-end bearing or shaft grounding ring to control circulating current</td></tr>
+    <tr><th>VFD platform</th><td><span class="fill fill-wide">&nbsp;</span> (Buyer standard to confirm)</td></tr>
+    <tr><th>VFD input</th><td>active front end or 6-pulse with line reactor; harmonic distortion to meet IEEE 519 at the point of common coupling</td></tr>
+  </table>
+  <p><span class="draft-note">[DRAFT NOTE: Confirm Buyer's preferred VFD and PLC vendors; harmonic compliance point (PCC vs. drive terminals) must be agreed.]</span></p>
+
+  <h3>5. Grounding and bonding</h3>
+  <p>Grounding and bonding follow NFPA 70 Article 250 and IEEE 142. All enclosures, motor frames, conduit, cable trays, and
+    exposed metalwork are bonded to the equipment grounding conductor and tied to the <span data-term="Site">Site</span>
+    ground grid. A dedicated, isolated instrument ground reference is provided for the control system where required by the
+    vendor, brought to a single ground point to avoid loops.</p>
+
+  <h3>6. Labeling and identification</h3>
+  <ul>
+    <li>Every enclosure, device, terminal, and conductor is uniquely tagged per the project tag register and the loop diagrams.</li>
+    <li>Engraved laminate nameplates (white-on-black for equipment, white-on-red for hazard/arc-flash) mechanically fastened, not adhesive.</li>
+    <li>Arc-flash incident-energy labels applied per NFPA 70E following the Buyer's study.
+      <span class="int-note">[INT: Arc-flash study is Buyer scope; Seller supplies equipment data to feed it.]</span></li>
+  </ul>
+
+  <h3>7. Recommended spares</h3>
+  <p>Seller shall furnish a recommended spare-parts list covering, at minimum, one of each fuse rating, control relay, contactor
+    coil, VFD control board, and I/O module family, plus commissioning spares consumed during startup. Quantities to be agreed.</p>
+  <table class="particulars">
+    <tr><th>Commissioning spares</th><td>included in supply</td></tr>
+    <tr><th>Two-year operational spares</th><td>quoted separately, Buyer election <span class="fill">&nbsp;</span></td></tr>
+  </table>
+  <p><span class="atty-note note-block">[ATTY: Recommended-spares list is advisory; confirm it does not create a warranty that the listed spares are sufficient for any stated availability figure.]</span></p>
+</div>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stub manager — TSI Contract Studio</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2319446C'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='%2300929F' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="studio.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header-left">
+      <img src="../assets/logo-white.svg" alt="TSI">
+      <span class="app-header-title">Contract Studio</span>
+      <span class="app-header-sub">Stub manager</span>
+    </div>
+    <nav class="app-nav">
+      <a href="index.html">Dashboard</a>
+      <a href="assembly.html">Assembly</a>
+      <a href="stubs.html">Stubs</a>
+      <a href="tracker.html">Tracker</a>
+    </nav>
+    <div class="app-header-actions">
+      <button class="btn-hdr" id="themeBtn">Theme</button>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="page-head">
+      <div>
+        <div class="page-kicker">Module 2</div>
+        <h1 class="page-title">Stub manager</h1>
+        <div class="page-sub">Reusable legal clauses reviewed once by the attorney — not every contract. Reviewer checks reset when a stub changes.</div>
+      </div>
+      <button class="btn btn-primary no-print" id="saveBtn">Save reviewer state</button>
+    </div>
+
+    <div class="split" style="grid-template-columns:320px 1fr;">
+      <!-- Stub list -->
+      <aside class="card" style="align-self:start;">
+        <div class="card-header"><div class="card-title">Library</div><span class="cell-muted" id="stubCount"></span></div>
+        <div id="stubList"></div>
+      </aside>
+
+      <!-- Stub detail -->
+      <section class="card" id="detail">
+        <div class="empty-state">Select a stub to view.</div>
+      </section>
+    </div>
+  </main>
+
+  <script src="studio.js"></script>
+  <script src="diff.js"></script>
+  <script>
+    document.getElementById('themeBtn').addEventListener('click', TSI.toggleTheme);
+
+    let reg = null, current = null;
+
+    function reviewerComplete(s) {
+      return s.reviewers && s.reviewers.attorney && s.reviewers.attorney.done && s.reviewers.jt && s.reviewers.jt.done;
+    }
+
+    function renderList() {
+      document.getElementById('stubCount').textContent = reg.stubs.length + ' stubs';
+      document.getElementById('stubList').innerHTML = reg.stubs.map(function (s) {
+        const ok = reviewerComplete(s);
+        return '<div class="toggle-row" data-id="' + s.id + '" style="cursor:pointer;padding:10px var(--sp-3);' +
+          (current && current.id === s.id ? 'background:var(--row-hover-bg);' : '') + '">' +
+          '<div style="flex:1;"><div class="cell-primary">' + TSI.escapeHTML(s.name) + '</div>' +
+          '<div class="cell-muted">Art. ' + (s.article || '—') + ' · v' + TSI.escapeHTML(s.version) + '</div></div>' +
+          (ok ? '<span class="rstatus rstatus-done">Reviewed</span>' : '<span class="rstatus rstatus-pending">Pending</span>') +
+          '</div>';
+      }).join('');
+      document.querySelectorAll('#stubList .toggle-row').forEach(function (row) {
+        row.addEventListener('click', function () { select(row.dataset.id); });
+      });
+    }
+
+    async function select(id) {
+      current = reg.stubs.find(function (s) { return s.id === id; });
+      if (!current) return;
+      renderList();
+      let body;
+      try { body = await TSI.readText(current.file); }
+      catch (e) { body = '<div class="banner banner-error">Could not load ' + TSI.escapeHTML(current.file) + '</div>'; }
+
+      const prev = (current.changelog || []).find(function (c) { return c.prev; });
+      const changelog = (current.changelog || []).map(function (c) {
+        return '<div class="feed-item" style="display:flex;gap:12px;padding:6px 0;border-bottom:0.5px solid var(--color-border);">' +
+          '<span class="mono cell-muted" style="min-width:96px;">v' + TSI.escapeHTML(c.version) + ' · ' + TSI.fmtDate(c.date) + '</span>' +
+          '<span style="flex:1;">' + TSI.escapeHTML(c.note) + '</span></div>';
+      }).join('');
+
+      const r = current.reviewers || {};
+      document.getElementById('detail').innerHTML =
+        '<div class="card-header"><div class="card-title">' + TSI.escapeHTML(current.name) + ' <span class="cell-muted">v' + TSI.escapeHTML(current.version) + '</span></div>' +
+          '<div class="row">' +
+            (prev ? '<button class="btn btn-sm btn-secondary" id="diffBtn">Diff vs previous</button>' : '<span class="cell-muted">No prior version</span>') +
+          '</div>' +
+        '</div>' +
+        '<div class="card-body">' +
+          '<div class="row" style="gap:var(--sp-4);flex-wrap:wrap;margin-bottom:var(--sp-3);">' +
+            '<label class="toggle-row" style="border:none;padding:0;gap:8px;cursor:pointer;"><input type="checkbox" class="checkbox" id="rev-attorney"' + (r.attorney && r.attorney.done ? ' checked' : '') + '> Attorney reviewed' +
+              (r.attorney && r.attorney.date ? ' <span class="cell-muted mono">' + TSI.fmtDate(r.attorney.date) + '</span>' : '') + '</label>' +
+            '<label class="toggle-row" style="border:none;padding:0;gap:8px;cursor:pointer;"><input type="checkbox" class="checkbox" id="rev-jt"' + (r.jt && r.jt.done ? ' checked' : '') + '> JT reviewed' +
+              (r.jt && r.jt.date ? ' <span class="cell-muted mono">' + TSI.fmtDate(r.jt.date) + '</span>' : '') + '</label>' +
+            '<span class="badge badge-blue">Approved ' + TSI.fmtDate(current.approvedDate) + '</span>' +
+          '</div>' +
+          '<div id="diffArea"></div>' +
+          '<div class="section-label" style="color:var(--tsi-teal);font:500 11px var(--font-ui);text-transform:uppercase;letter-spacing:0.08em;margin:var(--sp-3) 0 var(--sp-2);border-bottom:0.5px solid var(--tint-teal);padding-bottom:6px;">Clause content</div>' +
+          '<div class="doc-paper" style="width:auto;border:0.5px solid var(--color-border);padding:var(--sp-4);" data-view="working">' + body + '</div>' +
+          '<div class="section-label" style="color:var(--tsi-teal);font:500 11px var(--font-ui);text-transform:uppercase;letter-spacing:0.08em;margin:var(--sp-4) 0 var(--sp-2);border-bottom:0.5px solid var(--tint-teal);padding-bottom:6px;">Change history</div>' +
+          changelog +
+        '</div>';
+
+      // Defined terms inside the preview
+      TSI.initDefinedTerms(document.querySelector('#detail .doc-paper'), null);
+
+      // Reviewer checkboxes
+      document.getElementById('rev-attorney').addEventListener('change', function (e) { setReviewer('attorney', e.target.checked); });
+      document.getElementById('rev-jt').addEventListener('change', function (e) { setReviewer('jt', e.target.checked); });
+
+      const diffBtn = document.getElementById('diffBtn');
+      if (diffBtn) diffBtn.addEventListener('click', function () { showDiff(current, prev); });
+    }
+
+    function setReviewer(who, done) {
+      current.reviewers = current.reviewers || {};
+      current.reviewers[who] = { done: done, date: done ? TSI.stamp() : null };
+      renderList();
+      TSI.toast(done ? (who === 'jt' ? 'JT' : 'Attorney') + ' marked reviewed' : 'Review cleared', done ? 'ok' : 'warn');
+    }
+
+    async function showDiff(stub, prevEntry) {
+      const area = document.getElementById('diffArea');
+      area.innerHTML = '<div class="empty-state">Computing diff…</div>';
+      try {
+        const [curHTML, prevHTML] = await Promise.all([TSI.readText(stub.file), TSI.readText(prevEntry.prev)]);
+        const curText = TSIDiff.htmlToText(curHTML), prevText = TSIDiff.htmlToText(prevHTML);
+        const counts = TSIDiff.changeCount(prevText, curText);
+        area.innerHTML =
+          '<div class="diff-legend"><span><i style="background:color-mix(in srgb,var(--tsi-succ-green) 40%,#fff)"></i>Added in v' + TSI.escapeHTML(stub.version) + '</span>' +
+          '<span><i style="background:color-mix(in srgb,var(--tsi-coral) 40%,#fff)"></i>Removed since v' + TSI.escapeHTML(prevEntry.version) + '</span>' +
+          '<span class="cell-muted mono">' + counts.insertions + ' added · ' + counts.deletions + ' removed</span></div>' +
+          '<div class="diff-pane">' + TSIDiff.renderInline(prevText, curText) + '</div>';
+      } catch (e) {
+        area.innerHTML = '<div class="banner banner-error">Diff failed: ' + TSI.escapeHTML(e.message) + '</div>';
+      }
+    }
+
+    document.getElementById('saveBtn').addEventListener('click', async function () {
+      reg.updated = TSI.stamp();
+      const res = await TSI.saveFile('stub-registry', 'stub-registry.json', JSON.stringify(reg, null, 2));
+      if (res.method === 'cancelled') return;
+      TSI.toast(res.method === 'download' ? 'Downloaded stub-registry.json — replace config/ copy' : 'Saved reviewer state', 'ok');
+    });
+
+    async function init() {
+      TSI.initChrome();
+      reg = await TSI.readJSON('config/stub-registry.json');
+      renderList();
+      const want = TSI.params().stub;
+      select(want && reg.stubs.some(function (s) { return s.id === want; }) ? want : reg.stubs[0].id);
+    }
+    init().catch(function (e) {
+      document.getElementById('detail').innerHTML = '<div class="banner banner-error">' + TSI.escapeHTML(e.message) + '</div>';
+    });
+  </script>
+</body>
+</html>

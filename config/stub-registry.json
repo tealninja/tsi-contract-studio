@@ -1,0 +1,159 @@
+{
+  "_comment": "Stub library index. Maintained by the Stub Manager (studio/stubs.html) or by hand. Each stub is a reusable legal clause reviewed once by the attorney, not per contract. Reviewer checkboxes reset when a stub is modified.",
+  "updated": "2025-01-15",
+  "stubs": [
+    {
+      "id": "ip-license",
+      "name": "IP ownership & license",
+      "file": "stubs/ip-license.html",
+      "article": 9,
+      "version": "1.1",
+      "approvedDate": "2025-01-15",
+      "reviewers": {
+        "attorney": { "done": true, "date": "2025-01-15" },
+        "jt": { "done": true, "date": "2025-01-10" }
+      },
+      "changelog": [
+        { "version": "1.1", "date": "2025-01-15", "note": "Added reverse-engineering carve-out", "prev": "stubs/versions/ip-license_v1.0.html" },
+        { "version": "1.0", "date": "2024-11-01", "note": "Initial version" }
+      ]
+    },
+    {
+      "id": "indemnification",
+      "name": "Indemnification",
+      "file": "stubs/indemnification.html",
+      "article": 12,
+      "version": "1.0",
+      "approvedDate": "2024-11-01",
+      "reviewers": {
+        "attorney": { "done": true, "date": "2024-11-01" },
+        "jt": { "done": true, "date": "2024-11-01" }
+      },
+      "changelog": [
+        { "version": "1.0", "date": "2024-11-01", "note": "Initial version" }
+      ]
+    },
+    {
+      "id": "insurance",
+      "name": "Insurance",
+      "file": "stubs/insurance.html",
+      "article": 13,
+      "version": "1.0",
+      "approvedDate": "2024-11-01",
+      "reviewers": {
+        "attorney": { "done": true, "date": "2024-11-01" },
+        "jt": { "done": false, "date": null }
+      },
+      "changelog": [
+        { "version": "1.0", "date": "2024-11-01", "note": "Initial version" }
+      ]
+    },
+    {
+      "id": "limitation-of-liability",
+      "name": "Limitation of liability",
+      "file": "stubs/limitation-of-liability.html",
+      "article": 14,
+      "version": "1.2",
+      "approvedDate": "2025-01-08",
+      "reviewers": {
+        "attorney": { "done": true, "date": "2025-01-08" },
+        "jt": { "done": true, "date": "2025-01-08" }
+      },
+      "changelog": [
+        { "version": "1.2", "date": "2025-01-08", "note": "Aggregate cap tied to contract price; consequential-damages waiver mutualized" },
+        { "version": "1.1", "date": "2024-12-02", "note": "Added gross-negligence carve-out" },
+        { "version": "1.0", "date": "2024-11-01", "note": "Initial version" }
+      ]
+    },
+    {
+      "id": "force-majeure",
+      "name": "Force majeure",
+      "file": "stubs/force-majeure.html",
+      "article": 16,
+      "version": "1.0",
+      "approvedDate": "2024-11-01",
+      "reviewers": {
+        "attorney": { "done": true, "date": "2024-11-01" },
+        "jt": { "done": true, "date": "2024-11-01" }
+      },
+      "changelog": [
+        { "version": "1.0", "date": "2024-11-01", "note": "Initial version" }
+      ]
+    },
+    {
+      "id": "representations-warranties",
+      "name": "Representations & warranties",
+      "file": "stubs/representations-warranties.html",
+      "article": 17,
+      "version": "1.0",
+      "approvedDate": "2024-11-01",
+      "reviewers": {
+        "attorney": { "done": true, "date": "2024-11-01" },
+        "jt": { "done": false, "date": null }
+      },
+      "changelog": [
+        { "version": "1.0", "date": "2024-11-01", "note": "Initial version" }
+      ]
+    },
+    {
+      "id": "confidentiality",
+      "name": "Confidentiality",
+      "file": "stubs/confidentiality.html",
+      "article": 18,
+      "version": "1.0",
+      "approvedDate": "2024-11-01",
+      "reviewers": {
+        "attorney": { "done": true, "date": "2024-11-01" },
+        "jt": { "done": true, "date": "2024-11-01" }
+      },
+      "changelog": [
+        { "version": "1.0", "date": "2024-11-01", "note": "Initial version" }
+      ]
+    },
+    {
+      "id": "anti-corruption",
+      "name": "Compliance with laws & anti-corruption",
+      "file": "stubs/anti-corruption.html",
+      "article": 19,
+      "version": "1.0",
+      "approvedDate": "2024-11-01",
+      "reviewers": {
+        "attorney": { "done": true, "date": "2024-11-01" },
+        "jt": { "done": false, "date": null }
+      },
+      "changelog": [
+        { "version": "1.0", "date": "2024-11-01", "note": "Initial version" }
+      ]
+    },
+    {
+      "id": "dispute-resolution",
+      "name": "Dispute resolution",
+      "file": "stubs/dispute-resolution.html",
+      "article": 21,
+      "version": "1.0",
+      "approvedDate": "2024-11-01",
+      "reviewers": {
+        "attorney": { "done": true, "date": "2024-11-01" },
+        "jt": { "done": true, "date": "2024-11-01" }
+      },
+      "changelog": [
+        { "version": "1.0", "date": "2024-11-01", "note": "Initial version — arbitration/litigation toggle kept as drafting note" }
+      ]
+    },
+    {
+      "id": "governing-law",
+      "name": "Governing law",
+      "file": "stubs/governing-law.html",
+      "article": 21,
+      "version": "1.0",
+      "approvedDate": "2024-11-01",
+      "reviewers": {
+        "attorney": { "done": true, "date": "2024-11-01" },
+        "jt": { "done": true, "date": "2024-11-01" }
+      },
+      "changelog": [
+        { "version": "1.0", "date": "2024-11-01", "note": "Initial version — Washington default, project-state override as drafting note" }
+      ]
+    }
+  ]
+}

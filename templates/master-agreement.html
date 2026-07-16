@@ -1,0 +1,316 @@
+<!-- TSI Contract Studio · master agreement template
+     Equipment Supply Agreement (ESA). This is the base document the
+     Assembly module (studio/assembly.html) loads. It is a FRAGMENT:
+     no <html>/<head>/<body>, no <link> — the app supplies studio.css.
+
+     Placeholders:  {{field}}  are replaced from project.json.
+     Stub slots:    <div class="stub-slot" data-stub="ID"></div>  are replaced
+                    with the current library stub body.
+     Annex slots:   <div class="annex-slot" data-annex="X" data-doc="ID"></div>
+                    are replaced with the library document body.
+     Defined terms: [data-term] → hover definition + click to Article 1.
+     Calc fields:   [data-calc-pct] → hover shows the dollar value at
+                    the current Contract Price.
+-->
+<article class="esa-doc">
+
+  <!-- ============================ COVER SHEET ============================ -->
+  <header class="cover">
+    <div class="doc-title">Equipment supply agreement</div>
+    <div class="doc-subtitle">{{projectName}}</div>
+
+    <p class="working-only int-note note-block">[INT: Master working file. Keep drafting notes in Working View;
+      switch to Clean View before generating the counterparty export.]</p>
+
+    <h2 style="border:none;color:var(--tsi-deep-blue);font-size:12pt;">Parties</h2>
+    <table class="particulars">
+      <tr><th>Seller</th><td class="text">Teal Sales Incorporated (“<span data-term="Seller">Seller</span>” or “TSI”),
+        a Washington corporation</td></tr>
+      <tr><th>Seller notice address</th><td class="text">Teal Sales Incorporated, Attn: Contracts, {{sellerNotice}}</td></tr>
+      <tr><th>Buyer</th><td class="text">{{buyer}} (“<span data-term="Buyer">Buyer</span>”)</td></tr>
+      <tr><th>Buyer address</th><td class="text">{{buyerAddress}}</td></tr>
+      <tr><th>Buyer notice address</th><td class="text">{{buyerNotices}}</td></tr>
+    </table>
+
+    <h2 style="border:none;color:var(--tsi-deep-blue);font-size:12pt;">Project particulars</h2>
+    <table class="particulars">
+      <tr><th>Project</th><td class="text">{{projectName}}</td></tr>
+      <tr><th><span data-term="Site">Site</span></th><td class="text">{{site}}</td></tr>
+      <tr><th>Effective date</th><td>{{effectiveDate}}</td></tr>
+      <tr><th>Equipment</th><td class="text">The <span data-term="Equipment">Equipment</span> described in Annex A
+        (Scope of work summary)</td></tr>
+    </table>
+
+    <h2 style="border:none;color:var(--tsi-deep-blue);font-size:12pt;">Contract price & key commercial terms</h2>
+    <table class="particulars">
+      <tr><th><span data-term="Contract Price">Contract Price</span></th><td>{{contractPriceFmt}}</td></tr>
+      <tr><th>Warranty period</th><td class="text">{{warrantyPeriod}}</td></tr>
+      <tr><th>Governing law</th><td class="text">{{governingLaw}}
+        <span class="draft-note">[DRAFT NOTE: Washington default; confirm whether project state governs.]</span></td></tr>
+      <tr><th>Delivery LD grace period</th><td>{{delayLDGracePeriod}} weeks</td></tr>
+      <tr><th>Delivery LD rate</th><td><span data-calc-pct="{{delayLDRate}}" data-calc-label="per week of delay">{{delayLDRate}}%</span> of Contract Price / week</td></tr>
+      <tr><th>Delivery LD cap</th><td><span data-calc-pct="{{delayLDCap}}" data-calc-label="delivery LD cap">{{delayLDCap}}%</span> of Contract Price</td></tr>
+      <tr><th>Performance LD cap</th><td><span data-calc-pct="{{performanceLDCap}}" data-calc-label="performance LD cap">{{performanceLDCap}}%</span> of Contract Price</td></tr>
+      <tr><th>Aggregate LD cap</th><td><span data-calc-pct="{{aggregateLDCap}}" data-calc-label="aggregate LD cap">{{aggregateLDCap}}%</span> of Contract Price</td></tr>
+      <tr><th>Minimum performance threshold</th><td>{{minPerformanceThreshold}}% of guaranteed performance</td></tr>
+      <tr><th>Change-order markup</th><td>{{changeOrderMarkup}}%</td></tr>
+      <tr><th>Termination fee</th><td><span data-calc-pct="{{terminationFeePercent}}" data-calc-label="termination fee">{{terminationFeePercent}}%</span> of Contract Price</td></tr>
+    </table>
+
+    <h2 style="border:none;color:var(--tsi-deep-blue);font-size:12pt;">Scope inclusions</h2>
+    <p class="draft-note note-block">[DRAFT NOTE: Summarize the major scope inclusions here in prose (not checkboxes):
+      equipment supply, engineering, delivery terms, supervision of installation, commissioning, performance testing,
+      training, and O&M manuals. The governing scope is Annex A.]</p>
+
+    <h2 style="border:none;color:var(--tsi-deep-blue);font-size:12pt;">Milestone payment summary</h2>
+    <p>Payment is made against the milestones defined in <strong>Annex E</strong>. The summary below is for reference only.</p>
+    <p class="int-note note-block">[INT: Cover-sheet milestone summary is reference only. Annex E governs and prevails in
+      any conflict — see Order of precedence.]</p>
+
+    <!-- Annex list with reviewer column — Working View only (spec: cover sheet) -->
+    <div class="working-only">
+      <h2 style="border:none;color:var(--tsi-deep-blue);font-size:12pt;">Annex list <span class="cell-muted">(working view — reviewer column)</span></h2>
+      <div class="annex-list-slot"><!-- filled by assembly from project annexes --></div>
+    </div>
+
+    <div class="sig-grid">
+      <div><div class="sig-line">Teal Sales Incorporated — signature / name / title / date</div></div>
+      <div><div class="sig-line">{{buyer}} — signature / name / title / date</div></div>
+    </div>
+  </header>
+
+  <hr class="hr">
+
+  <!-- ======================== TERMS & CONDITIONS ======================== -->
+  <section class="terms">
+
+    <div class="article" id="article-1">
+      <h2>Article 1 — Definitions</h2>
+      <p>The following capitalized terms have the meanings given below. Terms defined elsewhere in this
+        <span data-term="Agreement">Agreement</span> have the meanings there assigned.</p>
+      <ol class="legal">
+        <li><span class="clause-num">“Agreement”</span> means this equipment supply agreement, its cover sheet, Articles 1–22,
+          and Annexes A through R, as amended by executed Change Orders.</li>
+        <li><span class="clause-num">“Seller”</span> means Teal Sales Incorporated.</li>
+        <li><span class="clause-num">“Buyer”</span> means {{buyer}}.</li>
+        <li><span class="clause-num">“Equipment”</span> means the machinery, components, software, and documentation Seller
+          supplies under Annex A.</li>
+        <li><span class="clause-num">“Site”</span> means {{site}}.</li>
+        <li><span class="clause-num">“Contract Price”</span> means {{contractPriceFmt}}, as adjusted by Change Orders.</li>
+        <li><span class="clause-num">“Commissioning”</span> means the activities under Article 5 to place the Equipment into
+          operating condition.</li>
+        <li><span class="clause-num">“Substantial Completion”</span> means the point certified under Annex K at which the
+          Equipment is capable of operating for its intended purpose, subject to punch-list items.</li>
+        <li><span class="clause-num">“Confidential Information”</span> has the meaning in Article 18.</li>
+        <li><span class="clause-num">“Intellectual Property”</span> means patents, copyrights, trade secrets, know-how, and
+          other proprietary rights.</li>
+        <li><span class="clause-num">“Force Majeure”</span> has the meaning in Article 16.</li>
+      </ol>
+    </div>
+
+    <div class="article" id="article-2">
+      <h2>Article 2 — Scope of work & engineering</h2>
+      <ol class="legal">
+        <li>Seller shall design, manufacture, and supply the Equipment described in Annex A, and shall perform the engineering,
+          supervision, Commissioning, and training set out in this Agreement and its Annexes.</li>
+        <li>Seller shall deliver operation and maintenance (O&amp;M) manuals for the Equipment prior to Commissioning.
+          <span class="int-note">[INT: O&amp;M manuals are a delivery requirement here, not a separate annex.]</span></li>
+        <li>Buyer shall provide the buyer-supplied information and Site conditions described in Annex C and the installation
+          prerequisites in Annex I.</li>
+        <li>Work not expressly included in Annex A is excluded unless added by executed Change Order under Article 8.</li>
+      </ol>
+    </div>
+
+    <div class="article" id="article-3">
+      <h2>Article 3 — Delivery, title & risk of loss</h2>
+      <ol class="legal">
+        <li>Delivery terms are as stated in Annex A and interpreted under Incoterms 2020.
+          <span class="draft-note">[DRAFT NOTE: Confirm Incoterm (e.g. FCA, CIP) and named place for this project.]</span></li>
+        <li>Title to each item of Equipment passes on the later of full payment for that item or delivery, except that
+          Intellectual Property does not pass (Article 9).</li>
+        <li>Risk of loss passes in accordance with the agreed Incoterm.</li>
+      </ol>
+    </div>
+
+    <div class="article" id="article-4">
+      <h2>Article 4 — Liquidated damages</h2>
+      <ol class="legal">
+        <li>If Seller fails to achieve delivery by the date in Annex D, after a grace period of {{delayLDGracePeriod}} weeks,
+          Seller shall pay delivery liquidated damages of
+          <span data-calc-pct="{{delayLDRate}}" data-calc-label="per week of delay">{{delayLDRate}}%</span> of the Contract
+          Price per week of delay, capped at
+          <span data-calc-pct="{{delayLDCap}}" data-calc-label="delivery LD cap">{{delayLDCap}}%</span> of the Contract Price.</li>
+        <li>Performance liquidated damages, if any, are governed by Article 6 and Annex F and are capped at
+          <span data-calc-pct="{{performanceLDCap}}" data-calc-label="performance LD cap">{{performanceLDCap}}%</span> of the
+          Contract Price.</li>
+        <li>Liquidated damages under this Agreement are in the aggregate capped at
+          <span data-calc-pct="{{aggregateLDCap}}" data-calc-label="aggregate LD cap">{{aggregateLDCap}}%</span> of the Contract
+          Price and are the Buyer's exclusive remedy for delay and performance shortfall.</li>
+      </ol>
+    </div>
+
+    <div class="article" id="article-5">
+      <h2>Article 5 — Commissioning</h2>
+      <ol class="legal">
+        <li>Seller shall issue a notice of commissioning readiness (Annex J form) when the Equipment is ready for Commissioning.</li>
+        <li>Commissioning proceeds per Annex I once Buyer confirms the prerequisites are satisfied.</li>
+        <li>Buyer shall make operators, feedstock, and utilities available for Commissioning as scheduled.</li>
+      </ol>
+    </div>
+
+    <div class="article" id="article-6">
+      <h2>Article 6 — Performance testing</h2>
+      <ol class="legal">
+        <li>Performance tests are conducted under the protocol in Annex F to verify the guaranteed parameters.</li>
+        <li>Seller is entitled to repeat a performance test up to two times where a test is affected by causes outside the
+          Equipment, including upstream or downstream equipment failure or off-specification feedstock.
+          <span class="atty-note note-block">[ATTY: Confirm the upstream/downstream carve-out language and the 2× repeat
+            limit align with Annex F.]</span></li>
+        <li>If guaranteed performance is not met but the Equipment achieves at least {{minPerformanceThreshold}}% of guaranteed
+          performance, performance liquidated damages under Article 4 apply. Below {{minPerformanceThreshold}}%, Buyer's
+          remedies under Article 15 apply.</li>
+      </ol>
+    </div>
+
+    <div class="article" id="article-7">
+      <h2>Article 7 — Contract price & payment</h2>
+      <ol class="legal">
+        <li>The Contract Price is {{contractPriceFmt}}, payable against the milestones in Annex E.</li>
+        <li>Each milestone payment is due within 30 days of the corresponding milestone certificate (Annex E / milestone
+          certificate form).</li>
+        <li>Undisputed overdue amounts accrue interest at 1.0% per month or the maximum lawful rate, whichever is lower.</li>
+      </ol>
+    </div>
+
+    <div class="article" id="article-8">
+      <h2>Article 8 — Change orders</h2>
+      <ol class="legal">
+        <li>Either party may request a change. No change is binding until documented on the change-order form (Annex G) and
+          executed by both parties.</li>
+        <li>Seller-priced additive work carries a markup of {{changeOrderMarkup}}% on cost unless otherwise agreed.</li>
+        <li>An executed Change Order adjusts the Contract Price and schedule accordingly and prevails per the Order of
+          precedence.</li>
+      </ol>
+    </div>
+
+    <div class="article" id="article-9">
+      <h2>Article 9 — Intellectual property</h2>
+      <div class="stub-slot" data-stub="ip-license"></div>
+    </div>
+
+    <div class="article" id="article-10">
+      <h2>Article 10 — Warranty</h2>
+      <ol class="legal">
+        <li>Seller warrants the Equipment against defects in workmanship and materials on the terms of Seller's standard
+          warranty (Annex H). The warranty period is {{warrantyPeriod}}.</li>
+        <li>Seller's sole obligation for a valid warranty claim is to repair or replace the affected item, on the response
+          times in Annex H.</li>
+        <li>The Annex H warranty is in lieu of all other warranties, express or implied, except as stated in Article 17.</li>
+      </ol>
+    </div>
+
+    <div class="article" id="article-11">
+      <h2>Article 11 — Spare parts</h2>
+      <ol class="legal">
+        <li>Seller shall make recommended commissioning and operating spare parts available for purchase. A recommended spares
+          list is provided during detailed engineering.
+          <span class="int-note">[INT: Spare parts are not an annex; procured late in the project and referenced here only.]</span></li>
+        <li>Seller shall support spare-parts availability for the Equipment's expected service life, subject to
+          third-party-component availability.</li>
+      </ol>
+    </div>
+
+    <div class="article" id="article-12">
+      <h2>Article 12 — Indemnification</h2>
+      <div class="stub-slot" data-stub="indemnification"></div>
+    </div>
+
+    <div class="article" id="article-13">
+      <h2>Article 13 — Insurance</h2>
+      <div class="stub-slot" data-stub="insurance"></div>
+    </div>
+
+    <div class="article" id="article-14">
+      <h2>Article 14 — Limitation of liability</h2>
+      <div class="stub-slot" data-stub="limitation-of-liability"></div>
+    </div>
+
+    <div class="article" id="article-15">
+      <h2>Article 15 — Events of default & remedies</h2>
+      <ol class="legal">
+        <li>An event of default includes a material breach uncured within 30 days of written notice, insolvency, or failure to
+          achieve the minimum performance threshold under Article 6.</li>
+        <li>On Buyer default, Seller may suspend work and pursue payment. On Seller default, Buyer may pursue the remedies in
+          this Agreement, subject to Articles 4 and 14.</li>
+        <li>A termination for convenience by Buyer entitles Seller to payment for work performed plus a termination fee of
+          <span data-calc-pct="{{terminationFeePercent}}" data-calc-label="termination fee">{{terminationFeePercent}}%</span>
+          of the undelivered Contract Price.</li>
+      </ol>
+    </div>
+
+    <div class="article" id="article-16">
+      <h2>Article 16 — Force majeure</h2>
+      <div class="stub-slot" data-stub="force-majeure"></div>
+    </div>
+
+    <div class="article" id="article-17">
+      <h2>Article 17 — Representations & warranties</h2>
+      <div class="stub-slot" data-stub="representations-warranties"></div>
+    </div>
+
+    <div class="article" id="article-18">
+      <h2>Article 18 — Confidentiality</h2>
+      <div class="stub-slot" data-stub="confidentiality"></div>
+    </div>
+
+    <div class="article" id="article-19">
+      <h2>Article 19 — Compliance with laws</h2>
+      <div class="stub-slot" data-stub="anti-corruption"></div>
+    </div>
+
+    <div class="article" id="article-20">
+      <h2>Article 20 — Change in law</h2>
+      <ol class="legal">
+        <li>If a change in law after the Effective Date increases Seller's cost or time of performance, the parties shall
+          equitably adjust the Contract Price and schedule by Change Order.</li>
+        <li>Each party bears its own compliance obligations under applicable law as it changes.</li>
+      </ol>
+    </div>
+
+    <div class="article" id="article-21">
+      <h2>Article 21 — Dispute resolution</h2>
+      <div class="stub-slot" data-stub="dispute-resolution"></div>
+      <div class="stub-slot" data-stub="governing-law"></div>
+    </div>
+
+    <div class="article" id="article-22">
+      <h2>Article 22 — Miscellaneous</h2>
+      <ol class="legal">
+        <li><span class="clause-num">Entire agreement.</span> This Agreement is the entire agreement and supersedes prior
+          understandings.</li>
+        <li><span class="clause-num">Order of precedence.</span> In conflict: (1) executed Change Orders (most recent governs),
+          (2) cover-sheet project particulars, (3) Articles 1–22, (4) Annexes A–R (earlier letter governs). The Annex E payment
+          schedule prevails over the cover-sheet milestone summary.</li>
+        <li><span class="clause-num">Assignment.</span> Neither party may assign without the other's written consent, not to be
+          unreasonably withheld.</li>
+        <li><span class="clause-num">Amendment.</span> Amendments must be in writing and signed by both parties.</li>
+        <li><span class="clause-num">Notices.</span> Notices are effective when delivered to the notice addresses on the cover
+          sheet.</li>
+        <li><span class="clause-num">Counterparts.</span> This Agreement may be executed in counterparts, including electronic
+          signatures.</li>
+      </ol>
+    </div>
+
+  </section>
+
+  <hr class="hr">
+
+  <!-- ============================== ANNEXES ============================== -->
+  <section class="annexes">
+    <h2 style="color:var(--tsi-deep-blue);font-size:14pt;text-transform:uppercase;border-bottom:1px solid var(--tsi-teal);">Annexes</h2>
+    <p>The following annexes form part of this Agreement. Annexes are listed in project-lifecycle order; in conflict, the
+      earlier letter governs.</p>
+    <div class="annex-body-slot"><!-- filled by assembly: one .article per project annex, each with an annex-slot --></div>
+  </section>
+
+</article>
