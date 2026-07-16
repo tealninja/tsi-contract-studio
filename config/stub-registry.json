@@ -1,6 +1,9 @@
 {
   "_comment": "Stub library index. Maintained by the Stub Manager (studio/stubs.html) or by hand. Each stub is a reusable legal clause reviewed once by the attorney, not per contract. Reviewer checkboxes reset when a stub is modified.",
   "updated": "2025-01-15",
+  "_variants": "Clause variants along two axes. Format: standard (stubs/<id>.html) or lite (stubs/lite/<id>.html). Stance: balanced (default) or pro-tsi (seller-tilted, stubs/pro-tsi/<id>.html and stubs/lite/pro-tsi/<id>.html). liteVariants lists ids with a lite file; proTsiVariants lists ids with a pro-tsi file. The app resolves the most specific available file and falls back to balanced/standard.",
+  "liteVariants": ["ip-license", "indemnification", "insurance", "limitation-of-liability", "force-majeure", "representations-warranties", "confidentiality", "anti-corruption", "dispute-resolution", "governing-law"],
+  "proTsiVariants": ["limitation-of-liability", "indemnification", "ip-license", "insurance", "dispute-resolution", "representations-warranties"],
   "stubs": [
     {
       "id": "ip-license",

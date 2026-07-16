@@ -279,5 +279,28 @@
 
   TSI.pct = function (done, total) { return total ? Math.round(done / total * 100) : 0; };
 
+  /* ── Clause variant resolution ──────────────────────────────
+     Resolve the file for a stub given the project format
+     (standard | lite) and stance (balanced | pro-tsi), falling
+     back gracefully to what actually exists on disk. Availability
+     is declared in the registry (liteVariants / proTsiVariants) so
+     we never fetch a missing path. */
+  TSI.resolveStub = function (meta, reg, format, stance) {
+    const id = meta.id;
+    const lite = format === 'lite' && (reg.liteVariants || []).indexOf(id) !== -1;
+    const pro  = stance === 'pro-tsi' && (reg.proTsiVariants || []).indexOf(id) !== -1;
+    let dir = 'stubs/';
+    if (lite) dir += 'lite/';
+    if (pro)  dir += 'pro-tsi/';
+    return {
+      file: dir + id + '.html',
+      resolvedFormat: lite ? 'lite' : 'standard',
+      resolvedStance: pro ? 'pro-tsi' : 'balanced',
+      // requested a variant we don't carry for this clause:
+      fellBackStance: stance === 'pro-tsi' && !pro,
+      fellBackFormat: format === 'lite' && !lite
+    };
+  };
+
   window.TSI = TSI;
 })();

@@ -1,0 +1,148 @@
+<!-- TSI Contract Studio · master agreement template · LITE (short form)
+     Condensed equipment supply agreement for simple deals. Same
+     placeholder / stub-slot / annex-slot mechanics as the full template;
+     fewer, folded articles and a plain-language cover. Rendered inside
+     .doc-paper.lite for roomier, non-lawyer-friendly styling. -->
+<article class="esa-doc esa-lite">
+
+  <!-- ============================ COVER ============================ -->
+  <header class="cover">
+    <div class="doc-title">Equipment supply agreement</div>
+    <div class="doc-subtitle">Short form · {{projectName}}</div>
+
+    <p class="working-only int-note note-block">[INT: Lite short-form agreement. Use for simple supply deals. Switch to Clean
+      view before sending; switch the project to Standard if the counterparty needs the full form.]</p>
+
+    <p>This agreement is made on {{effectiveDate}} between <strong>Teal Sales Incorporated</strong>
+      (“<span data-term="Seller">Seller</span>” or “TSI”), a Washington corporation, and
+      <strong>{{buyer}}</strong> (“<span data-term="Buyer">Buyer</span>”), {{buyerAddress}}.</p>
+
+    <p>Seller will supply the <span data-term="Equipment">Equipment</span> described in Annex A to the
+      <span data-term="Site">Site</span> at {{site}}, on the terms below.</p>
+
+    <h2>Key terms</h2>
+    <ul class="key-terms">
+      <li><span class="kt-label">Contract Price</span><span class="kt-value">{{contractPriceFmt}}</span></li>
+      <li><span class="kt-label">Effective date</span><span class="kt-value">{{effectiveDate}}</span></li>
+      <li><span class="kt-label">Warranty</span><span class="kt-value">{{warrantyPeriod}}</span></li>
+      <li><span class="kt-label">Delivery LD</span><span class="kt-value"><span data-calc-pct="{{delayLDRate}}" data-calc-label="per week late">{{delayLDRate}}%</span> per week, capped at <span data-calc-pct="{{delayLDCap}}" data-calc-label="delivery LD cap">{{delayLDCap}}%</span></span></li>
+      <li><span class="kt-label">Liability cap</span><span class="kt-value"><span data-calc-pct="{{aggregateLDCap}}" data-calc-label="aggregate liability cap">{{aggregateLDCap}}%</span> of Contract Price (see Article 7)</span></li>
+      <li><span class="kt-label">Governing law</span><span class="kt-value">{{governingLaw}}</span></li>
+    </ul>
+
+    <div class="working-only">
+      <h2>Annexes <span class="cell-muted">(working view)</span></h2>
+      <div class="annex-list-slot"></div>
+    </div>
+
+    <div class="sig-grid">
+      <div><div class="sig-line">Teal Sales Incorporated — signature / name / title / date</div></div>
+      <div><div class="sig-line">{{buyer}} — signature / name / title / date</div></div>
+    </div>
+  </header>
+
+  <hr class="hr">
+
+  <!-- ============================ TERMS ============================ -->
+  <section class="terms">
+
+    <div class="article" id="article-1">
+      <h2>1. Definitions</h2>
+      <p>“Agreement” means this short-form agreement and its annexes. “Seller” means Teal Sales Incorporated.
+        “Buyer” means {{buyer}}. “Equipment” means the items in Annex A. “Site” means {{site}}.
+        “<span data-term="Contract Price">Contract Price</span>” means {{contractPriceFmt}}, as adjusted by agreed changes.
+        “Commissioning” means placing the Equipment into working order. “Substantial Completion” means the Equipment is
+        able to operate for its intended purpose.</p>
+    </div>
+
+    <div class="article" id="article-2">
+      <h2>2. Equipment, scope & delivery</h2>
+      <ol class="legal">
+        <li><span class="clause-num">Supply.</span> Seller will design, supply, and deliver the Equipment in Annex A, and
+          provide the engineering, commissioning support, and training listed there.</li>
+        <li><span class="clause-num">Delivery.</span> Delivery is on the terms in Annex A (Incoterms 2020). Title passes on
+          full payment for an item; risk passes on delivery.</li>
+        <li><span class="clause-num">Buyer's part.</span> Buyer will prepare the Site and provide the information, utilities,
+          and access the Equipment needs, as noted in Annex A.</li>
+        <li><span class="clause-num">Manuals.</span> Seller will provide operation and maintenance manuals before
+          Commissioning.</li>
+      </ol>
+    </div>
+
+    <div class="article" id="article-3">
+      <h2>3. Price & payment</h2>
+      <ol class="legal">
+        <li><span class="clause-num">Price.</span> The Contract Price is {{contractPriceFmt}}, payable against the milestones
+          in Annex B.</li>
+        <li><span class="clause-num">Payment.</span> Each invoice is due within 30 days. Late undisputed amounts accrue
+          interest at 1.0% per month.</li>
+        <li><span class="clause-num">Changes.</span> A change to scope, price, or schedule is only binding if both parties
+          sign it. Priced additions carry a {{changeOrderMarkup}}% markup.</li>
+      </ol>
+    </div>
+
+    <div class="article" id="article-4">
+      <h2>4. Delivery delay & performance</h2>
+      <ol class="legal">
+        <li><span class="clause-num">Delay LD.</span> If Seller delivers late, after a {{delayLDGracePeriod}}-week grace
+          period Seller pays <span data-calc-pct="{{delayLDRate}}" data-calc-label="per week late">{{delayLDRate}}%</span> of
+          the Contract Price per week, capped at
+          <span data-calc-pct="{{delayLDCap}}" data-calc-label="delivery LD cap">{{delayLDCap}}%</span>.</li>
+        <li><span class="clause-num">Performance.</span> The Equipment must meet the guarantees in Annex C. If it reaches at
+          least {{minPerformanceThreshold}}% of guaranteed performance, performance LDs apply (capped at
+          <span data-calc-pct="{{performanceLDCap}}" data-calc-label="performance LD cap">{{performanceLDCap}}%</span>).
+          These LDs are Buyer's only remedy for delay and shortfall.</li>
+      </ol>
+    </div>
+
+    <div class="article" id="article-5">
+      <h2>5. Warranty</h2>
+      <ol class="legal">
+        <li><span class="clause-num">Warranty.</span> Seller warrants the Equipment against defects in workmanship and
+          materials for {{warrantyPeriod}}.</li>
+        <li><span class="clause-num">Remedy.</span> Seller will repair or replace a defective item. This is Buyer's only
+          warranty remedy. Annex C may add detail.</li>
+        <li><span class="clause-num">Exclusions.</span> The warranty does not cover misuse, normal wear, consumables, or
+          Buyer-supplied items.</li>
+      </ol>
+    </div>
+
+    <div class="article" id="article-6"><h2>6. Intellectual property</h2><div class="stub-slot" data-stub="ip-license"></div></div>
+    <div class="article" id="article-7"><h2>7. Limitation of liability</h2><div class="stub-slot" data-stub="limitation-of-liability"></div></div>
+    <div class="article" id="article-8"><h2>8. Indemnification</h2><div class="stub-slot" data-stub="indemnification"></div></div>
+    <div class="article" id="article-9"><h2>9. Insurance</h2><div class="stub-slot" data-stub="insurance"></div></div>
+    <div class="article" id="article-10"><h2>10. Confidentiality</h2><div class="stub-slot" data-stub="confidentiality"></div></div>
+    <div class="article" id="article-11"><h2>11. Compliance with laws</h2><div class="stub-slot" data-stub="anti-corruption"></div></div>
+    <div class="article" id="article-12"><h2>12. Force majeure</h2><div class="stub-slot" data-stub="force-majeure"></div></div>
+
+    <div class="article" id="article-13">
+      <h2>13. Governing law & disputes</h2>
+      <div class="stub-slot" data-stub="dispute-resolution"></div>
+      <div class="stub-slot" data-stub="governing-law"></div>
+    </div>
+
+    <div class="article" id="article-14">
+      <h2>14. General</h2>
+      <ol class="legal">
+        <li><span class="clause-num">Whole agreement.</span> This Agreement and its annexes are the whole agreement and
+          replace earlier discussions.</li>
+        <li><span class="clause-num">Order of precedence.</span> If terms conflict: signed changes first, then these
+          articles, then the annexes (Annex B governs payment).</li>
+        <li><span class="clause-num">Assignment.</span> Neither party may assign without the other's written consent.</li>
+        <li><span class="clause-num">Notices.</span> Notices go to the addresses above and take effect on delivery.</li>
+        <li><span class="clause-num">Counterparts.</span> The Agreement may be signed in counterparts, including
+          electronically.</li>
+      </ol>
+    </div>
+
+  </section>
+
+  <hr class="hr">
+
+  <section class="annexes">
+    <h2 style="color:var(--tsi-deep-blue);">Annexes</h2>
+    <p>These annexes form part of the Agreement.</p>
+    <div class="annex-body-slot"></div>
+  </section>
+
+</article>

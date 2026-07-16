@@ -419,6 +419,27 @@ h1, h2, h3, h4 { font-weight: 400; color: var(--color-heading); margin: 0; }
 [data-view="clean"] .open-issue,
 [data-view="clean"] .working-only { display: none !important; }
 
+/* ── Lite (short-form) document — cleaner, roomier for quick reading ── */
+.doc-paper.lite { font-size: 12.5pt; line-height: 1.8; --paper-pad: 1in; }
+.doc-paper.lite .doc-title { font-size: 22pt; }
+.doc-paper.lite .doc-subtitle { font-size: 11pt; letter-spacing: 0.04em; text-transform: uppercase; color: var(--tsi-teal); }
+.doc-paper.lite h2 { font: 500 13pt var(--font-ui); color: var(--tsi-deep-blue); text-transform: none;
+  letter-spacing: 0; border-bottom: none; margin: var(--sp-4) 0 var(--sp-1); padding: 0; }
+.doc-paper.lite .article { margin-top: var(--sp-4); }
+.doc-paper.lite .article > h2 { border-bottom: var(--border-hairline) solid var(--tint-teal); padding-bottom: 4px; }
+.doc-paper.lite p { margin: var(--sp-2) 0; }
+.doc-paper.lite ol.legal > li { margin: 12px 0; padding-left: 2em; }
+.doc-paper.lite ol.legal > li::before { color: var(--tsi-teal); }
+.doc-paper.lite .clause-num { color: var(--tsi-deep-blue); }
+
+/* Key-terms summary (lite cover, replaces the dense particulars grid) */
+.key-terms { list-style: none; margin: var(--sp-2) 0 var(--sp-3); padding: 0; }
+.key-terms li { display: flex; justify-content: space-between; gap: var(--sp-3); align-items: baseline;
+  padding: 8px 0; border-bottom: var(--border-hairline) solid var(--color-border); }
+.key-terms li:last-child { border-bottom: none; }
+.kt-label { color: var(--tsi-deep-blue); font-weight: 500; }
+.kt-value { font-family: var(--font-mono); text-align: right; }
+
 /* Library-document (annex source) body + fill-in blanks */
 .doc-content { font-size: 11pt; }
 .doc-content h3 { font: 500 12pt var(--font-ui); color: var(--tsi-deep-blue); margin: var(--sp-3) 0 var(--sp-1);

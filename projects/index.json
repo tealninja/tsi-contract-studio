@@ -3,6 +3,7 @@
   "updated": "2025-01-12",
   "projects": [
     { "id": "berneck-dryer-2025", "path": "projects/berneck-dryer-2025/project.json" },
-    { "id": "klabin-recovery-2024", "path": "projects/klabin-recovery-2024/project.json" }
+    { "id": "klabin-recovery-2024", "path": "projects/klabin-recovery-2024/project.json" },
+    { "id": "anphat-tissue-2025", "path": "projects/anphat-tissue-2025/project.json" }
   ]
 }

@@ -55,6 +55,7 @@
     document.getElementById('themeBtn').addEventListener('click', TSI.toggleTheme);
 
     let reg = null, current = null;
+    const stubView = { format: 'standard', stance: 'balanced' };
 
     function reviewerComplete(s) {
       return s.reviewers && s.reviewers.attorney && s.reviewers.attorney.done && s.reviewers.jt && s.reviewers.jt.done;
@@ -80,9 +81,6 @@
       current = reg.stubs.find(function (s) { return s.id === id; });
       if (!current) return;
       renderList();
-      let body;
-      try { body = await TSI.readText(current.file); }
-      catch (e) { body = '<div class="banner banner-error">Could not load ' + TSI.escapeHTML(current.file) + '</div>'; }
 
       const prev = (current.changelog || []).find(function (c) { return c.prev; });
       const changelog = (current.changelog || []).map(function (c) {
@@ -108,13 +106,25 @@
           '</div>' +
           '<div id="diffArea"></div>' +
           '<div class="section-label" style="color:var(--tsi-teal);font:500 11px var(--font-ui);text-transform:uppercase;letter-spacing:0.08em;margin:var(--sp-3) 0 var(--sp-2);border-bottom:0.5px solid var(--tint-teal);padding-bottom:6px;">Clause content</div>' +
-          '<div class="doc-paper" style="width:auto;border:0.5px solid var(--color-border);padding:var(--sp-4);" data-view="working">' + body + '</div>' +
+          '<div class="row row-wrap no-print" style="gap:6px;margin-bottom:var(--sp-2);">' +
+            '<span class="cell-muted" style="align-self:center;">Format</span>' +
+            '<button class="chip variant-chip" data-axis="format" data-val="standard">Standard</button>' +
+            '<button class="chip variant-chip" data-axis="format" data-val="lite">Lite</button>' +
+            '<span class="cell-muted" style="align-self:center;margin-left:12px;">Stance</span>' +
+            '<button class="chip variant-chip" data-axis="stance" data-val="balanced">Balanced</button>' +
+            '<button class="chip variant-chip" data-axis="stance" data-val="pro-tsi">Pro-TSI</button>' +
+            '<span id="variantNote" class="cell-muted" style="align-self:center;margin-left:8px;"></span>' +
+          '</div>' +
+          '<div class="doc-paper" id="clauseBody" style="width:auto;border:0.5px solid var(--color-border);padding:var(--sp-4);" data-view="working"><div class="empty-state">Loading…</div></div>' +
           '<div class="section-label" style="color:var(--tsi-teal);font:500 11px var(--font-ui);text-transform:uppercase;letter-spacing:0.08em;margin:var(--sp-4) 0 var(--sp-2);border-bottom:0.5px solid var(--tint-teal);padding-bottom:6px;">Change history</div>' +
           changelog +
         '</div>';
 
-      // Defined terms inside the preview
-      TSI.initDefinedTerms(document.querySelector('#detail .doc-paper'), null);
+      // Variant chips (format × stance) — show the lite / pro-TSI versions here too.
+      document.querySelectorAll('#detail .variant-chip').forEach(function (chip) {
+        chip.addEventListener('click', function () { stubView[chip.dataset.axis] = chip.dataset.val; loadClauseBody(); });
+      });
+      loadClauseBody();
 
       // Reviewer checkboxes
       document.getElementById('rev-attorney').addEventListener('change', function (e) { setReviewer('attorney', e.target.checked); });
@@ -122,6 +132,25 @@
 
       const diffBtn = document.getElementById('diffBtn');
       if (diffBtn) diffBtn.addEventListener('click', function () { showDiff(current, prev); });
+    }
+
+    async function loadClauseBody() {
+      if (!current) return;
+      const r = TSI.resolveStub(current, reg, stubView.format, stubView.stance);
+      // Reflect active chips (using the RESOLVED variant so fallbacks read true).
+      document.querySelectorAll('#detail .variant-chip').forEach(function (chip) {
+        const val = chip.dataset.axis === 'format' ? r.resolvedFormat : r.resolvedStance;
+        chip.classList.toggle('active', chip.dataset.val === val);
+      });
+      const note = document.getElementById('variantNote');
+      const msgs = [];
+      if (r.fellBackFormat) msgs.push('no lite variant');
+      if (r.fellBackStance) msgs.push('no pro-TSI variant');
+      if (note) note.textContent = msgs.length ? '(' + msgs.join(' · ') + ' — showing ' + r.resolvedFormat + ' / ' + r.resolvedStance + ')' : '';
+      const el = document.getElementById('clauseBody');
+      try { el.innerHTML = await TSI.readText(r.file); }
+      catch (e) { el.innerHTML = '<div class="banner banner-error">Could not load ' + TSI.escapeHTML(r.file) + '</div>'; return; }
+      TSI.initDefinedTerms(el, null);
     }
 
     function setReviewer(who, done) {

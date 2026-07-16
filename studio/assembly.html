@@ -32,6 +32,20 @@
       <select class="select" id="projectSelect" style="height:30px;"></select>
     </div>
     <button class="btn btn-secondary btn-sm" id="newBtn">New project</button>
+    <div class="field" style="align-items:flex-start;">
+      <span class="field-label">Format</span>
+      <div class="toggle-group" id="formatToggle">
+        <button class="toggle-opt active" data-fmt="standard" title="Full 22-article agreement">Standard</button>
+        <button class="toggle-opt" data-fmt="lite" title="Condensed short-form">Lite</button>
+      </div>
+    </div>
+    <div class="field" style="align-items:flex-start;">
+      <span class="field-label">Stance</span>
+      <div class="toggle-group" id="stanceToggle">
+        <button class="toggle-opt active" data-stance="balanced" title="Even-handed clauses">Balanced</button>
+        <button class="toggle-opt" data-stance="pro-tsi" title="Seller-favorable opening position">Pro-TSI</button>
+      </div>
+    </div>
     <div class="spacer"></div>
     <div class="field" style="align-items:flex-start;">
       <span class="field-label">View</span>
@@ -71,6 +85,10 @@
           <div class="field"><label class="field-label">Contract price (USD)</label><input class="input" type="number" id="f-contractPrice" placeholder="1815850"></div>
           <div class="field"><label class="field-label">Effective date</label><input class="input" type="date" id="f-effectiveDate"></div>
           <div class="field"><label class="field-label">Governing law</label><input class="input" id="f-governingLaw" value="Washington"></div>
+          <div class="field"><label class="field-label">Format</label>
+            <select class="select" id="f-format"><option value="standard">Standard — full 22-article</option><option value="lite">Lite — condensed short-form</option></select></div>
+          <div class="field"><label class="field-label">Stance</label>
+            <select class="select" id="f-stance"><option value="balanced">Balanced</option><option value="pro-tsi">Pro-TSI (seller-favorable)</option></select></div>
         </div>
         <p class="field-hint" style="margin-top:var(--sp-2);">Commercial terms (LD caps, thresholds) seed from TSI standard defaults and can be tuned per project after creation.</p>
       </div>
@@ -122,7 +140,8 @@
       sellerNotice: 'Vancouver, Washington, USA'
     };
 
-    let state = { index: null, project: null, template: null, stubReg: null, docReg: null };
+    let state = { index: null, project: null, templates: { standard: null, lite: null },
+                  stubReg: null, docReg: null, format: 'standard', stance: 'balanced' };
 
     function fillTemplate(tpl, p) {
       const map = {
@@ -149,22 +168,30 @@
         // version. Reviewer checks reset on modification (spec Module 2).
         const sec = (p.sections || []).find(function (s) { return s.stubId === id; });
         const overrideFile = sec && sec.modified && sec.stubOverrideFile;
+        // Resolve the variant (format × stance) unless a project override wins.
+        const r = TSI.resolveStub(meta, state.stubReg, state.format, state.stance);
+        const sourceFile = overrideFile || r.file;
         let html;
-        try { html = await TSI.readText(overrideFile || meta.file); }
+        try { html = await TSI.readText(sourceFile); }
         catch (e) { slot.innerHTML = '<span class="open-issue note-block">[OPEN: could not load stub ' + id + '.]</span>'; return; }
+
+        // Variant tags (working view): show which format/stance actually rendered.
+        function tag(txt, cls) { return '<span class="badge ' + cls + '" style="margin-right:5px;">' + txt + '</span>'; }
+        let variantTags = tag(r.resolvedFormat === 'lite' ? 'lite' : 'standard', 'badge-neutral') +
+          tag(r.resolvedStance === 'pro-tsi' ? 'pro-TSI' : 'balanced', r.resolvedStance === 'pro-tsi' ? 'badge-warning' : 'badge-teal');
+        if (r.fellBackStance) variantTags += '<span class="cell-muted" style="font-size:0.8em;">no pro-TSI variant — using balanced</span>';
+
         let flag = '';
-        if (sec && sec.modified) {
-          const diffBtn = overrideFile
-            ? ' <button class="btn btn-sm stub-diff-btn no-print" data-lib="' + TSI.escapeHTML(meta.file) +
-              '" data-override="' + TSI.escapeHTML(overrideFile) + '" data-name="' + TSI.escapeHTML(meta.name) +
-              '" data-ver="' + TSI.escapeHTML(sec.stubVersion || meta.version) +
-              '" style="margin-left:8px;vertical-align:middle;">View diff vs standard</button>'
-            : '';
+        if (sec && sec.modified && overrideFile) {
           flag = '<span class="stub-flag working-only">Modified from standard v' + TSI.escapeHTML(sec.stubVersion || meta.version) +
-                 ' — reviewer checks reset.' + diffBtn + '</span>';
+                 ' — reviewer checks reset. ' +
+                 '<button class="btn btn-sm stub-diff-btn no-print" data-lib="' + TSI.escapeHTML(meta.file) +
+                 '" data-override="' + TSI.escapeHTML(overrideFile) + '" data-name="' + TSI.escapeHTML(meta.name) +
+                 '" data-ver="' + TSI.escapeHTML(sec.stubVersion || meta.version) +
+                 '" style="margin-left:8px;vertical-align:middle;">View diff vs standard</button></span>';
         } else {
-          flag = '<span class="working-only cell-muted" style="display:block;font-size:0.8em;margin-bottom:4px;">Standard stub v' +
-                 TSI.escapeHTML(meta.version) + '</span>';
+          flag = '<span class="working-only" style="display:block;font-size:0.8em;margin-bottom:4px;">' + variantTags +
+                 '<span class="cell-muted">v' + TSI.escapeHTML(meta.version) + '</span></span>';
         }
         slot.innerHTML = flag + html;
       }));
@@ -212,12 +239,35 @@
 
     async function renderContract() {
       const p = state.project, paper = document.getElementById('docPaper');
-      paper.innerHTML = fillTemplate(state.template, p);
+      const tpl = state.templates[state.format] || state.templates.standard;
+      paper.classList.toggle('lite', state.format === 'lite');
+      paper.innerHTML = fillTemplate(tpl, p);
       await injectStubs(paper, p);
       await injectAnnexes(paper, p);
       TSI.initDefinedTerms(paper, DEFINITIONS);
       TSI.initCalcFields(paper, p.contractPrice);
     }
+
+    // Format / stance toggles — re-render the contract on change and
+    // remember the choice on the project.
+    function wireVariantToggle(sel, attr, key) {
+      document.querySelectorAll(sel + ' .toggle-opt').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          document.querySelectorAll(sel + ' .toggle-opt').forEach(function (b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          state[key] = btn.dataset[attr];
+          if (state.project) state.project[key] = state[key];
+          if (state.project) renderContract();
+        });
+      });
+    }
+    function setToggle(sel, attr, val) {
+      document.querySelectorAll(sel + ' .toggle-opt').forEach(function (b) {
+        b.classList.toggle('active', b.dataset[attr] === val);
+      });
+    }
+    wireVariantToggle('#formatToggle', 'fmt', 'format');
+    wireVariantToggle('#stanceToggle', 'stance', 'stance');
 
     // In-project modified-stub diff (delegated — survives re-render).
     const diffModal = document.getElementById('diffModal');
@@ -246,6 +296,11 @@
       const entry = state.index.projects.find(function (x) { return x.id === id; });
       if (!entry) return;
       state.project = await TSI.readJSON(entry.path);
+      // Adopt the project's saved format / stance (default standard / balanced).
+      state.format = (state.project.format === 'lite') ? 'lite' : 'standard';
+      state.stance = (state.project.stance === 'pro-tsi') ? 'pro-tsi' : 'balanced';
+      setToggle('#formatToggle', 'fmt', state.format);
+      setToggle('#stanceToggle', 'stance', state.stance);
       const url = new URL(location.href); url.searchParams.set('project', id); history.replaceState(null, '', url);
       await renderContract();
     }
@@ -293,9 +348,15 @@
         delayLDCap: STD_DEFAULTS.delayLDCap, performanceLDCap: STD_DEFAULTS.performanceLDCap,
         aggregateLDCap: STD_DEFAULTS.aggregateLDCap, minPerformanceThreshold: STD_DEFAULTS.minPerformanceThreshold,
         changeOrderMarkup: STD_DEFAULTS.changeOrderMarkup, terminationFeePercent: STD_DEFAULTS.terminationFeePercent,
-        sellerNotice: STD_DEFAULTS.sellerNotice
+        sellerNotice: STD_DEFAULTS.sellerNotice,
+        format: document.getElementById('f-format').value,
+        stance: document.getElementById('f-stance').value
       });
       state.project = proj;
+      state.format = proj.format === 'lite' ? 'lite' : 'standard';
+      state.stance = proj.stance === 'pro-tsi' ? 'pro-tsi' : 'balanced';
+      setToggle('#formatToggle', 'fmt', state.format);
+      setToggle('#stanceToggle', 'stance', state.stance);
       closeModal();
       renderContract();
       TSI.toast('Project created in memory — Save working file, then add it to projects/index.json', 'ok', 4200);
@@ -408,13 +469,15 @@
 
     async function init() {
       TSI.initChrome();
-      const [tpl, stubReg, docReg, index] = await Promise.all([
+      const [tplStd, tplLite, stubReg, docReg, index] = await Promise.all([
         TSI.readText('templates/master-agreement.html'),
+        TSI.readText('templates/master-agreement-lite.html'),
         TSI.readJSON('config/stub-registry.json'),
         TSI.readJSON('config/doc-library-registry.json'),
         TSI.readJSON('projects/index.json')
       ]);
-      state.template = tpl; state.stubReg = stubReg; state.docReg = docReg; state.index = index;
+      state.templates.standard = tplStd; state.templates.lite = tplLite;
+      state.stubReg = stubReg; state.docReg = docReg; state.index = index;
 
       const sel = document.getElementById('projectSelect');
       sel.innerHTML = index.projects.map(function (p) { return '<option value="' + p.id + '">' + TSI.escapeHTML(p.id) + '</option>'; }).join('');
@@ -427,6 +490,8 @@
         if (params.site) document.getElementById('f-site').value = params.site;
         if (params.price) document.getElementById('f-contractPrice').value = params.price;
         if (params.name) document.getElementById('f-name').value = params.name;
+        if (params.format === 'lite') document.getElementById('f-format').value = 'lite';
+        if (params.stance === 'pro-tsi') document.getElementById('f-stance').value = 'pro-tsi';
         openModal();
         if (index.projects.length) { sel.value = index.projects[0].id; await selectProject(index.projects[0].id); }
       } else {

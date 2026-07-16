@@ -41,6 +41,22 @@ assets/          TSI logos
 
 State lives in JSON files. There is no directory scan — `config/*.json` and `projects/index.json` are the indexes; the app updates them on save (or maintain by hand).
 
+## Formats & stances
+
+Every project builds along two independent axes, switchable live in Assembly and set on a new project:
+
+- **Format** — **Standard** (full 22-article agreement) or **Lite** (a condensed short-form contract: plain-language cover, ~14 folded articles, roomier styling — for simple deals like a small Vietnam supply contract).
+- **Stance** — **Balanced** (even-handed clauses) or **Pro-TSI** (seller-favorable opening position TSI would send before negotiating down).
+
+Each reusable clause can therefore exist in up to four variants. Availability is declared in `config/stub-registry.json` (`liteVariants`, `proTsiVariants`); the app resolves the most specific file and falls back gracefully (pro-TSI → balanced, lite → standard) so a missing variant never breaks a build. All 10 clauses have a lite version; the negotiation-sensitive ones (liability, indemnity, IP, insurance, disputes, reps) also have pro-TSI versions. The Stub manager lets you preview any variant; a project-level clause modification still overrides variant selection and is diffed against the library.
+
+```
+stubs/<id>.html            standard · balanced
+stubs/lite/<id>.html       lite · balanced
+stubs/pro-tsi/<id>.html    standard · pro-TSI
+stubs/lite/pro-tsi/<id>.html   lite · pro-TSI
+```
+
 ## Design system
 
 Visuals follow the canonical **TSI design system** (`tsi-style`): Inter + DM Serif Display + JetBrains Mono, warm off-white surfaces, hairline borders, no shadows, all numbers in mono. `studio/studio.css` vendors the base tokens and the component classes so the app stays dependency-free. The spec's older inline "house style" (Open Sans) is intentionally superseded.
