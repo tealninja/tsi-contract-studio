@@ -2,6 +2,7 @@
   "_comment": "Projects directory index. No server-side directory scan — this file lists project folders for the dashboard and tracker. The app appends an entry when a new project is created (or maintain by hand).",
   "updated": "2025-01-12",
   "projects": [
-    { "id": "berneck-dryer-2025", "path": "projects/berneck-dryer-2025/project.json" }
+    { "id": "berneck-dryer-2025", "path": "projects/berneck-dryer-2025/project.json" },
+    { "id": "klabin-recovery-2024", "path": "projects/klabin-recovery-2024/project.json" }
   ]
 }

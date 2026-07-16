@@ -81,7 +81,22 @@
     </div>
   </div>
 
+  <!-- Stub diff modal (modified project stub vs standard library version) -->
+  <div class="modal-overlay" id="diffModal">
+    <div class="modal" style="max-width:820px;">
+      <div class="modal-header"><div class="modal-title" id="diffTitle">Diff</div><button class="modal-close" data-diff-close>×</button></div>
+      <div class="modal-body">
+        <div class="diff-legend"><span><i style="background:color-mix(in srgb,var(--tsi-succ-green) 40%,#fff)"></i>Added in project version</span>
+          <span><i style="background:color-mix(in srgb,var(--tsi-coral) 40%,#fff)"></i>Removed from standard</span>
+          <span class="cell-muted mono" id="diffCounts"></span></div>
+        <div class="diff-pane" id="diffPane"></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-primary" data-diff-close>Close</button></div>
+    </div>
+  </div>
+
   <script src="studio.js"></script>
+  <script src="diff.js"></script>
   <script>
     document.getElementById('themeBtn').addEventListener('click', TSI.toggleTheme);
 
@@ -129,15 +144,24 @@
         const id = slot.getAttribute('data-stub');
         const meta = state.stubReg.stubs.find(function (s) { return s.id === id; });
         if (!meta) { slot.innerHTML = '<span class="open-issue note-block">[OPEN: stub “' + id + '” not found in registry.]</span>'; return; }
-        let html;
-        try { html = await TSI.readText(meta.file); }
-        catch (e) { slot.innerHTML = '<span class="open-issue note-block">[OPEN: could not load stub ' + id + '.]</span>'; return; }
-        // Is this stub modified in the project? (flag + note that reviewer checks reset)
+        // A stub may be overridden (modified) within this project. When it is,
+        // inject the project override and offer an in-place diff vs the library
+        // version. Reviewer checks reset on modification (spec Module 2).
         const sec = (p.sections || []).find(function (s) { return s.stubId === id; });
+        const overrideFile = sec && sec.modified && sec.stubOverrideFile;
+        let html;
+        try { html = await TSI.readText(overrideFile || meta.file); }
+        catch (e) { slot.innerHTML = '<span class="open-issue note-block">[OPEN: could not load stub ' + id + '.]</span>'; return; }
         let flag = '';
         if (sec && sec.modified) {
+          const diffBtn = overrideFile
+            ? ' <button class="btn btn-sm stub-diff-btn no-print" data-lib="' + TSI.escapeHTML(meta.file) +
+              '" data-override="' + TSI.escapeHTML(overrideFile) + '" data-name="' + TSI.escapeHTML(meta.name) +
+              '" data-ver="' + TSI.escapeHTML(sec.stubVersion || meta.version) +
+              '" style="margin-left:8px;vertical-align:middle;">View diff vs standard</button>'
+            : '';
           flag = '<span class="stub-flag working-only">Modified from standard v' + TSI.escapeHTML(sec.stubVersion || meta.version) +
-                 ' — reviewer checks reset; diff shown in Stub manager.</span>';
+                 ' — reviewer checks reset.' + diffBtn + '</span>';
         } else {
           flag = '<span class="working-only cell-muted" style="display:block;font-size:0.8em;margin-bottom:4px;">Standard stub v' +
                  TSI.escapeHTML(meta.version) + '</span>';
@@ -162,7 +186,11 @@
       if (!bodySlot) return;
       const parts = await Promise.all(annexes.map(async function (a) {
         let body;
-        if (a.sourceDoc) {
+        if (a.overrideFile) {
+          // Project-specific annex content (no library source).
+          try { body = await TSI.readText(a.overrideFile); }
+          catch (e) { body = '<span class="open-issue note-block">[OPEN: could not load project annex ' + TSI.escapeHTML(a.overrideFile) + '.]</span>'; }
+        } else if (a.sourceDoc) {
           const doc = state.docReg.documents.find(function (d) { return d.id === a.sourceDoc; });
           if (doc) {
             try { body = await TSI.readText(doc.file); }
@@ -190,6 +218,29 @@
       TSI.initDefinedTerms(paper, DEFINITIONS);
       TSI.initCalcFields(paper, p.contractPrice);
     }
+
+    // In-project modified-stub diff (delegated — survives re-render).
+    const diffModal = document.getElementById('diffModal');
+    document.getElementById('docPaper').addEventListener('click', async function (e) {
+      const btn = e.target.closest('.stub-diff-btn');
+      if (!btn) return;
+      document.getElementById('diffTitle').textContent = btn.dataset.name + ' — project vs standard v' + btn.dataset.ver;
+      document.getElementById('diffPane').innerHTML = '<div class="empty-state">Computing diff…</div>';
+      document.getElementById('diffCounts').textContent = '';
+      diffModal.classList.add('open');
+      try {
+        const [libHTML, ovrHTML] = await Promise.all([TSI.readText(btn.dataset.lib), TSI.readText(btn.dataset.override)]);
+        const libText = TSIDiff.htmlToText(libHTML), ovrText = TSIDiff.htmlToText(ovrHTML);
+        const counts = TSIDiff.changeCount(libText, ovrText);
+        document.getElementById('diffPane').innerHTML = TSIDiff.renderInline(libText, ovrText);
+        document.getElementById('diffCounts').textContent = counts.insertions + ' added · ' + counts.deletions + ' removed';
+      } catch (err) {
+        document.getElementById('diffPane').innerHTML = '<div class="banner banner-error">Diff failed: ' + TSI.escapeHTML(err.message) + '</div>';
+      }
+    });
+    diffModal.querySelectorAll('[data-diff-close]').forEach(function (b) {
+      b.addEventListener('click', function () { diffModal.classList.remove('open'); });
+    });
 
     async function selectProject(id) {
       const entry = state.index.projects.find(function (x) { return x.id === id; });
