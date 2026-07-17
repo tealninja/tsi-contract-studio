@@ -4,6 +4,11 @@ Browser-based contract assembly, management, and review-tracking for TSI equipme
 
 Built to the [project specification](TSI-CONTRACT-STUDIO-SPEC.md) (v0.2).
 
+## Two ways to run
+
+- **Folder app (production)** — the real tool: serve the folder over localhost (below). Reads/writes the JSON files, syncs via OneDrive/SharePoint.
+- **Offline single file (play/demo)** — `dist/TSI-Contract-Studio.html` bundles the entire app (all pages, styles, seed data) into one file that runs by **double-click, no server, fully offline**. File reads are shimmed to an in-memory copy of the data, so saving/exporting downloads files rather than writing back. Rebuild it with `node tools/build-bundle.js`.
+
 ## Quick start
 
 The app reads files with `fetch()`, which needs a web server — it does **not** work over `file://`.
