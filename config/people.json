@@ -1,0 +1,19 @@
+{
+  "_comment": "People reference list — autocomplete source for the Attendees and Owner columns on the Mill visits sheet. 'org' is TSI for internal staff or the mill/company name for external contacts. New names typed on the sheet are added here on save.",
+  "updated": "2025-07-17",
+  "people": [
+    { "id": "jt",             "name": "John Teal",        "org": "TSI",            "role": "Principal" },
+    { "id": "tsi-pm",         "name": "Priya Menon",      "org": "TSI",            "role": "Project manager" },
+    { "id": "tsi-elec",       "name": "Alex Ruiz",        "org": "TSI",            "role": "Electrical engineer" },
+    { "id": "tsi-mech",       "name": "Sam Delgado",      "org": "TSI",            "role": "Mechanical engineer" },
+    { "id": "tsi-controls",   "name": "Wei Chen",         "org": "TSI",            "role": "Controls engineer" },
+    { "id": "tsi-commercial", "name": "Dana Fields",      "org": "TSI",            "role": "Commercial" },
+    { "id": "klabin-rafael",  "name": "Rafael Souza",     "org": "Klabin",         "role": "Project engineer" },
+    { "id": "klabin-carla",   "name": "Carla Nunes",      "org": "Klabin",         "role": "Mill manager" },
+    { "id": "berneck-marcos", "name": "Marcos Berns",     "org": "Berneck",        "role": "Engineering lead" },
+    { "id": "suzano-beatriz", "name": "Beatriz Lima",     "org": "Suzano",         "role": "Reliability" },
+    { "id": "anphat-an",      "name": "Nguyễn Van An",     "org": "An Phát Paper",  "role": "Production manager" },
+    { "id": "westrock-dana",  "name": "Dana Whitfield",   "org": "WestRock",       "role": "Maintenance manager" },
+    { "id": "gp-tom",         "name": "Tom Reyes",        "org": "Georgia-Pacific","role": "Process engineer" }
+  ]
+}

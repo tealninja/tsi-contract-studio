@@ -23,7 +23,7 @@ const VFS = {};
     if (st.isDirectory()) walk(rel);
     else if (/\.(html|json)$/.test(name)) VFS[rel] = fs.readFileSync(path.join(ROOT, rel), 'utf8');
   }
-})('config'); ['templates', 'stubs', 'document-library', 'projects'].forEach(d => (function walk(dir) {
+})('config'); ['templates', 'stubs', 'document-library', 'projects', 'visits'].forEach(d => (function walk(dir) {
   for (const name of fs.readdirSync(path.join(ROOT, dir))) {
     const rel = dir + '/' + name;
     const st = fs.statSync(path.join(ROOT, rel));
@@ -38,7 +38,7 @@ const diffJs = read('studio/diff.js');
 const logoDataUri = 'data:image/svg+xml;base64,' + Buffer.from(read('assets/logo-white.svg')).toString('base64');
 
 // ── Split each page into { body, init } ──
-const PAGES = ['index.html', 'assembly.html', 'stubs.html', 'tracker.html'];
+const PAGES = ['index.html', 'assembly.html', 'stubs.html', 'tracker.html', 'visits.html'];
 const prepared = {};
 for (const page of PAGES) {
   const html = read('studio/' + page);
@@ -86,7 +86,7 @@ window.__pendingParams = {};
 TSI.params = function(){ return window.__pendingParams || {}; };
 window.__PAGES = ${safeJSON(bodies)};
 ${initsBlock}
-var NAMES = ['index.html','assembly.html','stubs.html','tracker.html'];
+var NAMES = ['index.html','assembly.html','stubs.html','tracker.html','visits.html'];
 function mount(file, params){
   if(!window.__PAGES[file]) file='index.html';
   window.__pendingParams = params || {};

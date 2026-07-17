@@ -1,0 +1,17 @@
+{
+  "_comment": "Mill reference list — autocomplete source for the Mill visits sheet. The sheet adds a new entry here when you type a mill that isn't listed (on save). Keep location/region so selecting a mill can pre-fill the location cell.",
+  "updated": "2025-07-17",
+  "mills": [
+    { "id": "klabin-ortigueira",   "name": "Klabin — Ortigueira",        "location": "Ortigueira, Paraná, Brazil",   "region": "Brazil",  "contact": "Rafael Souza" },
+    { "id": "klabin-monte-alegre", "name": "Klabin — Monte Alegre",      "location": "Telêmaco Borba, Paraná, Brazil","region": "Brazil", "contact": "Carla Nunes" },
+    { "id": "berneck-curitibanos", "name": "Berneck — Curitibanos",      "location": "Curitibanos, Santa Catarina, Brazil", "region": "Brazil", "contact": "Marcos Berns" },
+    { "id": "berneck-araucaria",   "name": "Berneck — Araucária",        "location": "Araucária, Paraná, Brazil",    "region": "Brazil",  "contact": "Legal Department" },
+    { "id": "suzano-imperatriz",   "name": "Suzano — Imperatriz",        "location": "Imperatriz, Maranhão, Brazil", "region": "Brazil",  "contact": "Beatriz Lima" },
+    { "id": "suzano-tres-lagoas",  "name": "Suzano — Três Lagoas",       "location": "Três Lagoas, Mato Grosso do Sul, Brazil", "region": "Brazil", "contact": "Diego Alves" },
+    { "id": "anphat-hung-yen",     "name": "An Phát Paper — Hưng Yên",    "location": "Hưng Yên, Vietnam",            "region": "SE Asia", "contact": "Nguyễn Van An" },
+    { "id": "westrock-longview",   "name": "WestRock — Longview",        "location": "Longview, Washington, USA",    "region": "US West", "contact": "Dana Whitfield" },
+    { "id": "gp-camas",            "name": "Georgia-Pacific — Camas",    "location": "Camas, Washington, USA",       "region": "US West", "contact": "Tom Reyes" },
+    { "id": "domtar-kingsport",    "name": "Domtar — Kingsport",         "location": "Kingsport, Tennessee, USA",    "region": "US East", "contact": "Sandra Bell" },
+    { "id": "packaging-corp-wallula", "name": "Packaging Corp — Wallula", "location": "Wallula, Washington, USA",     "region": "US West", "contact": "Erik Hansen" }
+  ]
+}

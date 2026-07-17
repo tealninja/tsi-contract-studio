@@ -31,6 +31,7 @@ Recommended browser: **Chrome or Edge** (full read/write via the File System Acc
 | `studio/assembly.html` | 1 · Contract assembly | Create a project; cover sheet auto-populates; stubs and annexes inject from the library; Working / Clean / Print views; defined-term tooltips; % LD caps show dollar amounts on hover; **Export clean** (Module 4) strips internal markup, version-stamps, and appends to the export log |
 | `studio/stubs.html` | 2 · Stub manager | List reusable clauses, view content, diff a stub against its previous version, record Attorney / JT sign-off |
 | `studio/tracker.html` | 3 · Review tracker | Per-project section/annex status + notes, completion and "ready to package"; all-projects roll-up |
+| `studio/visits.html` | Mill visits | A spreadsheet-style log you fill in-line: date, mill, location, attendees, purpose, summary, follow-up, owner, status. Mills and people autocomplete from `config/mills.json` + `config/people.json` (type a new one → "Add" writes it back). Tab across, Enter down; Export CSV. |
 
 ## Layout
 

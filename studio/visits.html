@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mill visits — TSI Contract Studio</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2319446C'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='%2300929F' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="studio.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header-left">
+      <img src="../assets/logo-white.svg" alt="TSI">
+      <span class="app-header-title">Contract Studio</span>
+      <span class="app-header-sub">Mill visits</span>
+    </div>
+    <nav class="app-nav">
+      <a href="index.html">Dashboard</a>
+      <a href="assembly.html">Assembly</a>
+      <a href="stubs.html">Stubs</a>
+      <a href="tracker.html">Tracker</a>
+      <a href="visits.html">Visits</a>
+    </nav>
+    <div class="app-header-actions">
+      <button class="btn-hdr" id="themeBtn">Theme</button>
+    </div>
+  </header>
+
+  <main class="page" style="max-width:1320px;">
+    <div class="page-head">
+      <div>
+        <div class="page-kicker">Field log</div>
+        <h1 class="page-title">Mill visits</h1>
+        <div class="page-sub">Fill it in like a spreadsheet. Mills and people autocomplete — type a new one and pick “Add”. Tab across, Enter down.</div>
+      </div>
+    </div>
+
+    <div class="sheet-toolbar no-print">
+      <div class="toolbar-search" style="position:relative;flex:0 0 240px;">
+        <input class="input" id="search" placeholder="Filter visits…" style="height:32px;">
+      </div>
+      <span class="cell-muted" id="count"></span>
+      <div class="spacer"></div>
+      <button class="btn btn-sm" id="addBtn">+ Add visit</button>
+      <button class="btn btn-sm" id="csvBtn">Export CSV</button>
+      <button class="btn btn-primary btn-sm" id="saveBtn"><span id="dirty" class="hidden"><span class="dirty-dot"></span>&nbsp;</span>Save</button>
+    </div>
+
+    <div class="sheet-wrap">
+      <table class="sheet">
+        <colgroup>
+          <col style="width:34px"><col style="width:112px"><col style="width:190px"><col style="width:180px">
+          <col style="width:190px"><col style="width:130px"><col style="width:280px"><col style="width:240px">
+          <col style="width:150px"><col style="width:120px">
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="col-rownum">#</th><th>Date</th><th>Mill</th><th>Location</th><th>Attendees</th>
+            <th>Purpose</th><th>Summary</th><th>Follow-up</th><th>Owner</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="sheetBody"></tbody>
+      </table>
+    </div>
+    <p class="page-sub no-print" style="margin-top:var(--sp-2);">
+      New mills and people you add are saved back to <span class="mono">config/mills.json</span> and <span class="mono">config/people.json</span> so they autocomplete next time.
+    </p>
+  </main>
+
+  <script src="studio.js"></script>
+  <script>
+    document.getElementById('themeBtn').addEventListener('click', TSI.toggleTheme);
+
+    // Column layout. `type` drives the cell control. c-index = position in COLS.
+    const COLS = [
+      { key: 'date', type: 'date' },
+      { key: 'mill', type: 'mill' },
+      { key: 'location', type: 'text' },
+      { key: 'attendees', type: 'people' },
+      { key: 'purpose', type: 'select' },
+      { key: 'summary', type: 'text' },
+      { key: 'followup', type: 'text' },
+      { key: 'owner', type: 'owner' },
+      { key: 'status', type: 'select' }
+    ];
+
+    const state = {
+      visits: [], mills: [], people: [], purposes: [], statuses: [],
+      dirty: false, millsDirty: false, peopleDirty: false, filter: ''
+    };
+    const tbody = document.getElementById('sheetBody');
+
+    function markDirty() {
+      state.dirty = true;
+      document.getElementById('dirty').classList.remove('hidden');
+    }
+    function newVisit() {
+      return { id: 'v-' + Math.random().toString(36).slice(2, 8), date: '', mill: '', location: '',
+        attendees: [], purpose: '', summary: '', followup: '', owner: 'John Teal', status: 'Planned' };
+    }
+    function isBlank(v) {
+      return !v.date && !v.mill && !v.location && !(v.attendees && v.attendees.length) &&
+        !v.purpose && !v.summary && !v.followup && !v.status && (!v.owner || v.owner === 'John Teal');
+    }
+
+    // ── Cell builders ──────────────────────────────────────────
+    function cellInput(v, col, r, c, type) {
+      const inp = document.createElement('input');
+      inp.className = 'sheet-input'; inp.type = type || 'text';
+      inp.value = v[col.key] || ''; inp.dataset.r = r; inp.dataset.c = c;
+      inp.addEventListener('input', function () { v[col.key] = inp.value; markDirty(); ensureTrailingBlank(); });
+      wireNav(inp);
+      return inp;
+    }
+    function cellSelect(v, col, r, c, options) {
+      const sel = document.createElement('select');
+      sel.className = 'sheet-select'; sel.dataset.r = r; sel.dataset.c = c;
+      sel.innerHTML = '<option value=""></option>' + options.map(function (o) {
+        return '<option' + (v[col.key] === o ? ' selected' : '') + '>' + TSI.escapeHTML(o) + '</option>';
+      }).join('');
+      if (col.key === 'status') applyStatusColor(sel, v.status);
+      sel.addEventListener('change', function () {
+        v[col.key] = sel.value; if (col.key === 'status') applyStatusColor(sel, sel.value);
+        markDirty(); ensureTrailingBlank();
+      });
+      wireNav(sel);
+      return sel;
+    }
+    function applyStatusColor(sel, val) {
+      sel.className = 'sheet-select' + (val ? ' status-cell-' + val.replace(/[^A-Za-z]/g, '-') : '');
+    }
+    function cellMill(v, r, c) {
+      const inp = document.createElement('input');
+      inp.className = 'sheet-input'; inp.value = v.mill || ''; inp.dataset.r = r; inp.dataset.c = c;
+      inp.addEventListener('input', function () { v.mill = inp.value; markDirty(); });
+      TSI.autocomplete(inp, {
+        source: function () { return state.mills; },
+        label: function (m) { return m.name; },
+        meta: function (m) { return m.location; },
+        allowAdd: true,
+        onPick: function (m) {
+          if (m.__new) { addMill(m.name); v.mill = m.name; }
+          else { v.mill = m.name; const loc = v.location; if (!loc && m.location) { v.location = m.location; syncCell(inp, 2); } }
+          inp.value = v.mill; markDirty(); ensureTrailingBlank(); focusCol(inp, 3);
+        }
+      });
+      wireNav(inp);
+      return inp;
+    }
+    function cellOwner(v, r, c) {
+      const inp = document.createElement('input');
+      inp.className = 'sheet-input'; inp.value = v.owner || ''; inp.dataset.r = r; inp.dataset.c = c;
+      inp.addEventListener('input', function () { v.owner = inp.value; markDirty(); });
+      TSI.autocomplete(inp, {
+        source: function () { return state.people; },
+        label: function (p) { return p.name; },
+        meta: function (p) { return p.org + (p.role ? ' · ' + p.role : ''); },
+        allowAdd: true,
+        onPick: function (p) { if (p.__new) addPerson(p.name); v.owner = p.name; inp.value = p.name; markDirty(); ensureTrailingBlank(); }
+      });
+      wireNav(inp);
+      return inp;
+    }
+    // Attendees: chips + a typing input with autocomplete on the current token.
+    function cellPeople(v, r, c) {
+      const wrap = document.createElement('div');
+      wrap.className = 'tokens'; wrap.dataset.r = r;
+      const inp = document.createElement('input');
+      inp.className = 'token-input'; inp.dataset.r = r; inp.dataset.c = c;
+      function render() {
+        wrap.querySelectorAll('.token').forEach(function (t) { t.remove(); });
+        (v.attendees || []).forEach(function (name, i) {
+          const isExt = !state.people.some(function (p) { return p.name === name && p.org === 'TSI'; });
+          const chip = document.createElement('span');
+          chip.className = 'token' + (isExt ? ' token-ext' : '');
+          chip.innerHTML = TSI.escapeHTML(name) + '<span class="tk-x" title="Remove">×</span>';
+          chip.querySelector('.tk-x').addEventListener('mousedown', function (e) {
+            e.preventDefault(); v.attendees.splice(i, 1); markDirty(); render();
+          });
+          wrap.insertBefore(chip, inp);
+        });
+      }
+      function addName(name) {
+        name = (name || '').trim(); if (!name) return;
+        v.attendees = v.attendees || [];
+        if (v.attendees.indexOf(name) === -1) v.attendees.push(name);
+        if (!state.people.some(function (p) { return p.name === name; })) addPerson(name);
+        inp.value = ''; markDirty(); ensureTrailingBlank(); render();
+      }
+      wrap.addEventListener('mousedown', function (e) { if (e.target === wrap) { e.preventDefault(); inp.focus(); } });
+      inp.addEventListener('keydown', function (e) {
+        if ((e.key === ',' ) && inp.value.trim()) { e.preventDefault(); addName(inp.value); }
+        else if (e.key === 'Backspace' && !inp.value && v.attendees && v.attendees.length) { v.attendees.pop(); markDirty(); render(); }
+      });
+      TSI.autocomplete(inp, {
+        source: function () { return state.people.filter(function (p) { return (v.attendees || []).indexOf(p.name) === -1; }); },
+        label: function (p) { return p.name; },
+        meta: function (p) { return p.org + (p.role ? ' · ' + p.role : ''); },
+        allowAdd: true,
+        onPick: function (p) { addName(p.name); }
+      });
+      wireNav(inp);
+      wrap.appendChild(inp); render();
+      return wrap;
+    }
+
+    // ── Navigation (Enter = down same column) ──────────────────
+    function wireNav(ctrl) {
+      ctrl.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !isAcOpen()) { e.preventDefault(); focusCol(ctrl, +ctrl.dataset.c, +1); }
+      });
+    }
+    function isAcOpen() { const m = document.querySelector('.ac-menu'); return m && m.style.display === 'block'; }
+    function focusCol(fromCtrl, c, delta) {
+      const rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+      const tr = fromCtrl.closest('tr'); let ri = rows.indexOf(tr);
+      if (delta) ri += delta; else ri = ri; // same row when delta undefined? no — for tab-into location we pass no delta and want same row
+      let target;
+      if (delta) {
+        let next = rows[ri];
+        if (!next) { addRow(newVisit()); next = tbody.lastElementChild; }
+        target = next.querySelector('[data-c="' + c + '"]');
+      } else {
+        target = tr.querySelector('[data-c="' + c + '"]');
+      }
+      if (target) target.focus();
+    }
+    // Re-sync a cell's control value from state (e.g. mill pick fills location).
+    function syncCell(fromCtrl, c) {
+      const tr = fromCtrl.closest('tr');
+      const ctrl = tr.querySelector('[data-c="' + c + '"]');
+      const r = +tr.dataset.r; const v = state.visits[r];
+      if (ctrl && v) ctrl.value = v[COLS[c].key] || '';
+    }
+
+    // ── Row rendering ──────────────────────────────────────────
+    function buildRow(v, r) {
+      const tr = document.createElement('tr');
+      tr.dataset.r = r;
+      const num = document.createElement('td');
+      num.className = 'rownum'; num.textContent = r + 1;
+      const del = document.createElement('div'); del.className = 'row-del'; del.title = 'Delete row'; del.textContent = '×';
+      del.addEventListener('click', function () { deleteRow(r); });
+      num.appendChild(del); tr.appendChild(num);
+
+      COLS.forEach(function (col, c) {
+        const td = document.createElement('td');
+        let ctrl;
+        if (col.type === 'date') ctrl = cellInput(v, col, r, c, 'date');
+        else if (col.type === 'text') ctrl = cellInput(v, col, r, c, 'text');
+        else if (col.type === 'select') ctrl = cellSelect(v, col, r, c, col.key === 'purpose' ? state.purposes : state.statuses);
+        else if (col.type === 'mill') ctrl = cellMill(v, r, c);
+        else if (col.type === 'owner') ctrl = cellOwner(v, r, c);
+        else if (col.type === 'people') ctrl = cellPeople(v, r, c);
+        td.appendChild(ctrl); tr.appendChild(td);
+      });
+      return tr;
+    }
+    function renderAll() {
+      tbody.innerHTML = '';
+      const q = state.filter.toLowerCase();
+      state.visits.forEach(function (v, r) {
+        if (q) {
+          const hay = [v.mill, v.location, v.summary, v.followup, v.owner, (v.attendees || []).join(' '), v.purpose, v.status].join(' ').toLowerCase();
+          if (hay.indexOf(q) === -1) return;
+        }
+        tbody.appendChild(buildRow(v, r));
+      });
+      updateCount();
+    }
+    function addRow(v) {
+      state.visits.push(v);
+      if (!state.filter) tbody.appendChild(buildRow(v, state.visits.length - 1));
+      updateCount();
+    }
+    function deleteRow(r) {
+      state.visits.splice(r, 1); markDirty(); renderAll();
+    }
+    function ensureTrailingBlank() {
+      const last = state.visits[state.visits.length - 1];
+      if (!last || !isBlank(last)) { addRow(newVisit()); }
+    }
+    function updateCount() {
+      const real = state.visits.filter(function (v) { return !isBlank(v); }).length;
+      document.getElementById('count').textContent = real + ' visit' + (real === 1 ? '' : 's');
+    }
+
+    // ── Reference-list additions ───────────────────────────────
+    function addMill(name) {
+      if (state.mills.some(function (m) { return m.name === name; })) return;
+      state.mills.push({ id: 'mill-' + Math.random().toString(36).slice(2, 7), name: name, location: '', region: '', contact: '' });
+      state.millsDirty = true;
+    }
+    function addPerson(name) {
+      if (state.people.some(function (p) { return p.name === name; })) return;
+      state.people.push({ id: 'p-' + Math.random().toString(36).slice(2, 7), name: name, org: '', role: '' });
+      state.peopleDirty = true;
+    }
+
+    // ── Save / export ──────────────────────────────────────────
+    function cleanVisits() { return state.visits.filter(function (v) { return !isBlank(v); }); }
+
+    document.getElementById('saveBtn').addEventListener('click', async function () {
+      const payload = { _comment: 'Mill visit log.', updated: TSI.stamp(), purposes: state.purposes, statuses: state.statuses, visits: cleanVisits() };
+      const res = await TSI.saveFile('mill-visits', 'mill-visits.json', JSON.stringify(payload, null, 2));
+      if (res.method === 'cancelled') return;
+      if (state.millsDirty) {
+        await TSI.saveFile('mills', 'mills.json', JSON.stringify({ _comment: 'Mill reference list.', updated: TSI.stamp(), mills: state.mills }, null, 2), { repick: true });
+        state.millsDirty = false;
+      }
+      if (state.peopleDirty) {
+        await TSI.saveFile('people', 'people.json', JSON.stringify({ _comment: 'People reference list.', updated: TSI.stamp(), people: state.people }, null, 2), { repick: true });
+        state.peopleDirty = false;
+      }
+      state.dirty = false; document.getElementById('dirty').classList.add('hidden');
+      TSI.toast(res.method === 'download' ? 'Downloaded mill-visits.json — drop it in the visits folder' : 'Saved mill visits', 'ok');
+    });
+
+    document.getElementById('csvBtn').addEventListener('click', function () {
+      const headers = ['Date', 'Mill', 'Location', 'Attendees', 'Purpose', 'Summary', 'Follow-up', 'Owner', 'Status'];
+      const q = function (s) { return '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"'; };
+      const rows = cleanVisits().map(function (v) {
+        return [v.date, v.mill, v.location, (v.attendees || []).join('; '), v.purpose, v.summary, v.followup, v.owner, v.status].map(q).join(',');
+      });
+      const csv = headers.map(q).join(',') + '\n' + rows.join('\n');
+      TSI.downloadFile('mill-visits_' + TSI.stamp() + '.csv', csv, 'text/csv');
+      TSI.toast('Exported CSV', 'ok');
+    });
+
+    document.getElementById('addBtn').addEventListener('click', function () {
+      // drop any trailing blank first so the new row lands at the end cleanly
+      addRow(newVisit());
+      const rows = tbody.querySelectorAll('tr');
+      const last = rows[rows.length - 1];
+      if (last) { const first = last.querySelector('[data-c="0"]'); if (first) first.focus(); }
+    });
+
+    document.getElementById('search').addEventListener('input', function (e) {
+      state.filter = e.target.value; renderAll();
+    });
+
+    // ── Init ───────────────────────────────────────────────────
+    async function init() {
+      TSI.initChrome();
+      const [visitsFile, millsFile, peopleFile] = await Promise.all([
+        TSI.readJSON('visits/mill-visits.json'),
+        TSI.readJSON('config/mills.json'),
+        TSI.readJSON('config/people.json')
+      ]);
+      state.visits = visitsFile.visits || [];
+      state.purposes = visitsFile.purposes || [];
+      state.statuses = visitsFile.statuses || [];
+      state.mills = millsFile.mills || [];
+      state.people = peopleFile.people || [];
+      renderAll();
+      ensureTrailingBlank();
+    }
+    init().catch(function (e) {
+      tbody.innerHTML = '<tr><td colspan="10"><div class="banner banner-error" style="margin:12px;">Failed to load: ' + TSI.escapeHTML(e.message) + '</div></td></tr>';
+    });
+  </script>
+</body>
+</html>

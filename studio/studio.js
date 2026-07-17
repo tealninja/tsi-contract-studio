@@ -279,6 +279,98 @@
 
   TSI.pct = function (done, total) { return total ? Math.round(done / total * 100) : 0; };
 
+  /* ── Inline autocomplete ────────────────────────────────────
+     Attach a filtering dropdown to a text input. Used by the Mill
+     visits sheet for mill / attendee / owner cells. One shared menu
+     element is reused across all inputs.
+
+     opts: {
+       source():[items]         fresh each open, so new adds appear
+       label(item):string       text shown / inserted
+       meta(item):string?       muted right-side hint (org, location)
+       onPick(item)             chosen item, or {name:q,__new:true}
+       allowAdd:bool            offer "Add \"q\"" when nothing matches
+       minChars:number          default 0 (show all on focus)
+     } */
+  let acMenu, acState = null;
+  function acEnsure() {
+    if (!acMenu) {
+      acMenu = document.createElement('div');
+      acMenu.className = 'ac-menu';
+      acMenu.style.display = 'none';
+      document.body.appendChild(acMenu);
+      document.addEventListener('mousedown', function (e) {
+        if (acState && e.target !== acState.input && !acMenu.contains(e.target)) acClose();
+      });
+      window.addEventListener('scroll', function () { if (acState) acPosition(); }, true);
+    }
+    return acMenu;
+  }
+  function acPosition() {
+    const r = acState.input.getBoundingClientRect();
+    acMenu.style.left = Math.min(r.left, window.innerWidth - 300) + 'px';
+    acMenu.style.top = (r.bottom + 2) + 'px';
+    acMenu.style.minWidth = Math.max(r.width, 180) + 'px';
+  }
+  function acClose() { if (acMenu) acMenu.style.display = 'none'; acState = null; }
+  function acRender() {
+    const s = acState, q = s.input.value.trim().toLowerCase();
+    const items = s.opts.source().filter(function (it) {
+      return !q || s.opts.label(it).toLowerCase().indexOf(q) !== -1 ||
+        (s.opts.meta && (s.opts.meta(it) || '').toLowerCase().indexOf(q) !== -1);
+    }).slice(0, 40);
+    let html = items.map(function (it, i) {
+      const meta = s.opts.meta ? s.opts.meta(it) : '';
+      return '<div class="ac-item" data-i="' + i + '">' + TSI.escapeHTML(s.opts.label(it)) +
+        (meta ? '<span class="ac-meta">' + TSI.escapeHTML(meta) + '</span>' : '') + '</div>';
+    }).join('');
+    const exact = items.some(function (it) { return s.opts.label(it).toLowerCase() === q; });
+    const rawQ = s.input.value.trim();
+    if (s.opts.allowAdd && rawQ && !exact) {
+      html += '<div class="ac-item ac-add" data-add="1">Add “' + TSI.escapeHTML(rawQ) + '”</div>';
+    }
+    if (!html) html = '<div class="ac-empty">No matches</div>';
+    acMenu.innerHTML = html;
+    s.items = items; s.active = -1;
+    acMenu.style.display = 'block';
+    acPosition();
+    acMenu.querySelectorAll('.ac-item').forEach(function (el) {
+      el.addEventListener('mousedown', function (ev) {
+        ev.preventDefault();
+        if (el.dataset.add) acPickAdd(); else acPickIndex(+el.dataset.i);
+      });
+    });
+  }
+  function acHighlight() {
+    acMenu.querySelectorAll('.ac-item').forEach(function (el, i) { el.classList.toggle('active', i === acState.active); });
+    const el = acMenu.querySelectorAll('.ac-item')[acState.active];
+    if (el) el.scrollIntoView({ block: 'nearest' });
+  }
+  function acPickIndex(i) { const it = acState.items[i]; const cb = acState.opts.onPick; acClose(); if (it) cb(it); }
+  function acPickAdd() { const q = acState.inputVal(); const cb = acState.opts.onPick; acClose(); if (q) cb({ name: q, __new: true }); }
+
+  TSI.autocomplete = function (input, opts) {
+    input.addEventListener('focus', function () {
+      acEnsure(); acState = { input: input, opts: opts, items: [], active: -1, inputVal: function () { return input.value.trim(); } };
+      acRender();
+    });
+    input.addEventListener('input', function () {
+      if (!acState || acState.input !== input) { acEnsure(); acState = { input: input, opts: opts, items: [], active: -1, inputVal: function () { return input.value.trim(); } }; }
+      acRender();
+    });
+    input.addEventListener('keydown', function (e) {
+      if (!acState || acMenu.style.display === 'none') return;
+      const n = acMenu.querySelectorAll('.ac-item').length;
+      if (e.key === 'ArrowDown') { e.preventDefault(); acState.active = Math.min(acState.active + 1, n - 1); acHighlight(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); acState.active = Math.max(acState.active - 1, 0); acHighlight(); }
+      else if (e.key === 'Enter') {
+        const active = acMenu.querySelectorAll('.ac-item')[acState.active];
+        if (active) { e.preventDefault(); if (active.dataset.add) acPickAdd(); else acPickIndex(+active.dataset.i); }
+      } else if (e.key === 'Escape') { acClose(); }
+    });
+    input.addEventListener('blur', function () { setTimeout(function () { if (acState && acState.input === input) acClose(); }, 120); });
+  };
+
   /* ── Clause variant resolution ──────────────────────────────
      Resolve the file for a stub given the project format
      (standard | lite) and stance (balanced | pro-tsi), falling

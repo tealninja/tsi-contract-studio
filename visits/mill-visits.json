@@ -1,0 +1,13 @@
+{
+  "_comment": "Mill visit log. Edited inline on the Mill visits sheet (studio/visits.html). Attendees is a list of names; mill/owner/attendees autocomplete from config/mills.json + config/people.json.",
+  "updated": "2025-07-17",
+  "purposes": ["Sales call", "Site survey", "Commissioning", "Performance test", "Warranty / service", "Audit", "Training", "Other"],
+  "statuses": ["Planned", "Completed", "Follow-up", "Cancelled"],
+  "visits": [
+    { "id": "v-2025-001", "date": "2025-01-14", "mill": "Berneck — Araucária", "location": "Araucária, Paraná, Brazil", "attendees": ["John Teal", "Priya Menon"], "purpose": "Site survey", "summary": "Dryer island survey ahead of ESA. Confirmed 480 V / 60 Hz supply and access constraints.", "followup": "Send responsibility matrix draft (Annex B).", "owner": "John Teal", "status": "Completed" },
+    { "id": "v-2025-002", "date": "2025-02-03", "mill": "Klabin — Ortigueira", "location": "Ortigueira, Paraná, Brazil", "attendees": ["John Teal", "Wei Chen", "Rafael Souza"], "purpose": "Commissioning", "summary": "Recovery boiler controls SAT support; punch-list cleared except HMI alarm tuning.", "followup": "Return for alarm rationalization (ISA-18.2) week of Feb 24.", "owner": "Wei Chen", "status": "Follow-up" },
+    { "id": "v-2025-003", "date": "2025-03-12", "mill": "An Phát Paper — Hưng Yên", "location": "Hưng Yên, Vietnam", "attendees": ["John Teal"], "purpose": "Sales call", "summary": "Tissue rewinder upgrade scope discussion; lite short-form ESA proposed.", "followup": "Issue lite ESA draft; confirm CIP Hải Phòng delivery term.", "owner": "John Teal", "status": "Follow-up" },
+    { "id": "v-2025-004", "date": "2025-04-08", "mill": "WestRock — Longview", "location": "Longview, Washington, USA", "attendees": ["Sam Delgado", "Dana Whitfield"], "purpose": "Warranty / service", "summary": "Bearing wear inspection under warranty; collected vibration data.", "followup": "Quote replacement bearings + install supervision.", "owner": "Sam Delgado", "status": "Completed" },
+    { "id": "v-2025-005", "date": "2025-05-20", "mill": "Suzano — Imperatriz", "location": "Imperatriz, Maranhão, Brazil", "attendees": ["John Teal", "Priya Menon"], "purpose": "Performance test", "summary": "Witnessed performance test; throughput met, moisture 0.2% over guarantee.", "followup": "Review Annex F acceptance; schedule retest window.", "owner": "Priya Menon", "status": "Planned" }
+  ]
+}
