@@ -8,7 +8,7 @@
 */
 const fs = require('fs');
 const path = require('path');
-const ROOT = '/home/user/tsi-contract-studio';
+const ROOT = path.resolve(__dirname, '..');  // repo root (portable: works locally and in CI)
 const OUT = path.join(ROOT, 'dist');
 fs.mkdirSync(OUT, { recursive: true });
 const read = (p) => fs.readFileSync(path.join(ROOT, p), 'utf8');
