@@ -1,0 +1,16 @@
+{
+  "_comment": "Airport reference (IATA) for flight legs in the Travel planner — coordinates for great-circle flight-time estimates. Extend as new mills/regions are added.",
+  "updated": "2025-07-17",
+  "airports": [
+    { "iata": "PDX", "name": "Portland",         "city": "Portland, OR, USA",        "lat": 45.588, "lng": -122.598 },
+    { "iata": "SEA", "name": "Seattle-Tacoma",   "city": "Seattle, WA, USA",         "lat": 47.449, "lng": -122.309 },
+    { "iata": "PSC", "name": "Tri-Cities",       "city": "Pasco, WA, USA",           "lat": 46.265, "lng": -119.119 },
+    { "iata": "TRI", "name": "Tri-Cities TN",    "city": "Blountville, TN, USA",     "lat": 36.475, "lng": -82.407 },
+    { "iata": "CWB", "name": "Afonso Pena",      "city": "Curitiba, PR, Brazil",     "lat": -25.528, "lng": -49.176 },
+    { "iata": "FLN", "name": "Hercílio Luz",     "city": "Florianópolis, SC, Brazil","lat": -27.670, "lng": -48.547 },
+    { "iata": "GRU", "name": "Guarulhos",        "city": "São Paulo, SP, Brazil",    "lat": -23.435, "lng": -46.473 },
+    { "iata": "IMP", "name": "Prefeito Renato Moreira", "city": "Imperatriz, MA, Brazil", "lat": -5.531, "lng": -47.460 },
+    { "iata": "CGR", "name": "Campo Grande",     "city": "Campo Grande, MS, Brazil", "lat": -20.469, "lng": -54.672 },
+    { "iata": "HAN", "name": "Noi Bai",          "city": "Hanoi, Vietnam",           "lat": 21.221, "lng": 105.807 }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "_comment": "TSI office locations — used as start/end anchors for the Travel planner. lat/lng place the pin; airport is the nearest IATA.",
+  "updated": "2025-07-17",
+  "offices": [
+    { "id": "tsi-hq", "name": "TSI — Vancouver HQ", "location": "Vancouver, Washington, USA", "lat": 45.639, "lng": -122.661, "airport": "PDX", "home": true }
+  ]
+}

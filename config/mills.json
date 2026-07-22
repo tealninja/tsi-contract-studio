@@ -1,17 +1,17 @@
 {
-  "_comment": "Mill reference list — autocomplete source for the Mill visits sheet. The sheet adds a new entry here when you type a mill that isn't listed (on save). Keep location/region so selecting a mill can pre-fill the location cell.",
+  "_comment": "Mill reference list — autocomplete source for the Mill visits sheet and pin source for the Travel planner. lat/lng place the pin; airport is the nearest IATA for flight legs. The sheet adds a new entry here when you type a mill that isn't listed (on save).",
   "updated": "2025-07-17",
   "mills": [
-    { "id": "klabin-ortigueira",   "name": "Klabin — Ortigueira",        "location": "Ortigueira, Paraná, Brazil",   "region": "Brazil",  "contact": "Rafael Souza" },
-    { "id": "klabin-monte-alegre", "name": "Klabin — Monte Alegre",      "location": "Telêmaco Borba, Paraná, Brazil","region": "Brazil", "contact": "Carla Nunes" },
-    { "id": "berneck-curitibanos", "name": "Berneck — Curitibanos",      "location": "Curitibanos, Santa Catarina, Brazil", "region": "Brazil", "contact": "Marcos Berns" },
-    { "id": "berneck-araucaria",   "name": "Berneck — Araucária",        "location": "Araucária, Paraná, Brazil",    "region": "Brazil",  "contact": "Legal Department" },
-    { "id": "suzano-imperatriz",   "name": "Suzano — Imperatriz",        "location": "Imperatriz, Maranhão, Brazil", "region": "Brazil",  "contact": "Beatriz Lima" },
-    { "id": "suzano-tres-lagoas",  "name": "Suzano — Três Lagoas",       "location": "Três Lagoas, Mato Grosso do Sul, Brazil", "region": "Brazil", "contact": "Diego Alves" },
-    { "id": "anphat-hung-yen",     "name": "An Phát Paper — Hưng Yên",    "location": "Hưng Yên, Vietnam",            "region": "SE Asia", "contact": "Nguyễn Van An" },
-    { "id": "westrock-longview",   "name": "WestRock — Longview",        "location": "Longview, Washington, USA",    "region": "US West", "contact": "Dana Whitfield" },
-    { "id": "gp-camas",            "name": "Georgia-Pacific — Camas",    "location": "Camas, Washington, USA",       "region": "US West", "contact": "Tom Reyes" },
-    { "id": "domtar-kingsport",    "name": "Domtar — Kingsport",         "location": "Kingsport, Tennessee, USA",    "region": "US East", "contact": "Sandra Bell" },
-    { "id": "packaging-corp-wallula", "name": "Packaging Corp — Wallula", "location": "Wallula, Washington, USA",     "region": "US West", "contact": "Erik Hansen" }
+    { "id": "klabin-ortigueira",   "name": "Klabin — Ortigueira",        "location": "Ortigueira, Paraná, Brazil",           "region": "Brazil",  "contact": "Rafael Souza",     "lat": -24.208, "lng": -50.918, "airport": "CWB" },
+    { "id": "klabin-monte-alegre", "name": "Klabin — Monte Alegre",      "location": "Telêmaco Borba, Paraná, Brazil",       "region": "Brazil",  "contact": "Carla Nunes",      "lat": -24.323, "lng": -50.616, "airport": "CWB" },
+    { "id": "berneck-curitibanos", "name": "Berneck — Curitibanos",      "location": "Curitibanos, Santa Catarina, Brazil",  "region": "Brazil",  "contact": "Marcos Berns",     "lat": -27.282, "lng": -50.585, "airport": "FLN" },
+    { "id": "berneck-araucaria",   "name": "Berneck — Araucária",        "location": "Araucária, Paraná, Brazil",            "region": "Brazil",  "contact": "Legal Department", "lat": -25.593, "lng": -49.410, "airport": "CWB" },
+    { "id": "suzano-imperatriz",   "name": "Suzano — Imperatriz",        "location": "Imperatriz, Maranhão, Brazil",         "region": "Brazil",  "contact": "Beatriz Lima",     "lat": -5.526,  "lng": -47.477, "airport": "IMP" },
+    { "id": "suzano-tres-lagoas",  "name": "Suzano — Três Lagoas",       "location": "Três Lagoas, Mato Grosso do Sul, Brazil","region": "Brazil", "contact": "Diego Alves",      "lat": -20.751, "lng": -51.678, "airport": "CGR" },
+    { "id": "anphat-hung-yen",     "name": "An Phát Paper — Hưng Yên",    "location": "Hưng Yên, Vietnam",                    "region": "SE Asia", "contact": "Nguyễn Van An",     "lat": 20.646,  "lng": 106.051, "airport": "HAN" },
+    { "id": "westrock-longview",   "name": "WestRock — Longview",        "location": "Longview, Washington, USA",            "region": "US West", "contact": "Dana Whitfield",   "lat": 46.138,  "lng": -122.938,"airport": "PDX" },
+    { "id": "gp-camas",            "name": "Georgia-Pacific — Camas",    "location": "Camas, Washington, USA",               "region": "US West", "contact": "Tom Reyes",        "lat": 45.587,  "lng": -122.399,"airport": "PDX" },
+    { "id": "domtar-kingsport",    "name": "Domtar — Kingsport",         "location": "Kingsport, Tennessee, USA",            "region": "US East", "contact": "Sandra Bell",      "lat": 36.548,  "lng": -82.562, "airport": "TRI" },
+    { "id": "packaging-corp-wallula", "name": "Packaging Corp — Wallula", "location": "Wallula, Washington, USA",             "region": "US West", "contact": "Erik Hansen",      "lat": 46.074,  "lng": -118.906,"airport": "PSC" }
   ]
 }
